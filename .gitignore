@@ -1,0 +1,11 @@
+build/*
+*.pxuser
+*.model*
+.svn
+.DS_Store
+profile
+*.perspect*
+*.xcworkspace/
+xcuserdata/
+*.xcodeproj/
+*.xcodeproj/*

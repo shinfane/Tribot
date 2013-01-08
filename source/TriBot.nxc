@@ -1,0 +1,86 @@
+
+#define THRESHOLD 25
+#define NEAR 30 //cm
+#define MIC SENSOR_2
+#define RIGHT 1 
+#define LEFT 0
+
+// Turn to each side
+// and check distance
+
+// a new test
+
+int check_sides()
+{
+    int left_signal;
+    int right_signal;
+    
+    Wait(1000);
+    RotateMotor(OUT_B,25,90);
+    left_signal=SensorUS(S4);
+    Wait(1000);
+    RotateMotor(OUT_B,25,-180);
+    right_signal=SensorUS(S4);
+    Wait(1000);
+    RotateMotor(OUT_B,25,90);
+    Wait(1000);
+    if (left_signal > right_signal)
+    {
+        return LEFT;
+    }
+    else
+    {
+		return RIGHT;
+    }
+    
+    
+}
+
+
+task main(){
+    //    SetSensorLight(IN_3);
+    SetSensorLowspeed(IN_4);
+    
+    //    RotateMotor(OUT_A,75,60);
+    //    Off(OUT_A);
+    //    RotateMotor(OUT_A,75,-60);
+    //    Off(OUT_A);
+    while(true){
+        
+        OnFwd(OUT_AC,50);
+        while(SensorUS(S4)>NEAR);
+        Off(OUT_AC);
+        RotateMotor(OUT_B,25,180);
+        
+        
+        if (SensorUS(IN_4)>NEAR)
+        {
+            Wait(800);
+            OnRev(OUT_AC,50);  
+            
+        }
+        
+        
+        RotateMotor(OUT_B,25,-180);
+        Wait(1000);
+        
+        if (check_sides()==RIGHT)
+        {
+            OnFwd(OUT_A,50);
+            OnRev(OUT_C,50);
+            
+        } 
+        else
+        {
+            OnFwd(OUT_C,50);
+            OnRev(OUT_A,50);
+            
+        }
+        
+        Wait(500);
+        
+        Off(OUT_AC);
+        Wait(2000);
+    }
+}
+
