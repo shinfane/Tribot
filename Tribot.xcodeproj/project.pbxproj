@@ -6,11 +6,28 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXFileReference section */
+		8646C45E169C429A00D75A0B /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8646C460169C429A00D75A0B /* NBCCommon.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NBCCommon.nxc; sourceTree = "<group>"; };
+		8646C461169C429A00D75A0B /* TriBot.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TriBot.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+/* End PBXFileReference section */
+
 /* Begin PBXGroup section */
 		8646C451169C424E00D75A0B = {
 			isa = PBXGroup;
 			children = (
+				8646C45E169C429A00D75A0B /* Makefile */,
+				8646C45F169C429A00D75A0B /* source */,
 			);
+			sourceTree = "<group>";
+		};
+		8646C45F169C429A00D75A0B /* source */ = {
+			isa = PBXGroup;
+			children = (
+				8646C460169C429A00D75A0B /* NBCCommon.nxc */,
+				8646C461169C429A00D75A0B /* TriBot.nxc */,
+			);
+			path = source;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
