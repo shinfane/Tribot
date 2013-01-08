@@ -8,7 +8,7 @@
 // Turn to each side
 // and check distance
 
-// a new test
+
 
 int check_sides()
 {
