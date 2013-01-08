@@ -26,7 +26,9 @@ $(PROGRAM).rxe: $(SOURCE)/$(PROGRAM).nxc
 
 clean:
 	/bin/rm -vf $(BUILD)/$(PROGRAM).rxe
-		   
+
+# This is only to deploy to the NXT
+
 deploy: $(SOURCE)/$(PROGRAM).nxc
 	cd $(SOURCE); \
 	$(NXC) -d -S=$(INTERFACE) -O=../$(BUILD)/$(PROGRAM).rxe  \
