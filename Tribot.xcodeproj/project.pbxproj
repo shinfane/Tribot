@@ -198,6 +198,7 @@
 				86D192D8169C484A00FFA613 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

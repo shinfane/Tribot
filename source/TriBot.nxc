@@ -8,14 +8,40 @@
 // Turn to each side
 // and check distance
 
+// decided to use mutexes, just to make sure that
+//  tasks do not impact each other
 
+mutex MotorMutex_B;
 
+void drive_backward (int duration)
+{
+	Acquire(MotorMutex_B);
+	RotateMotor(OUT_B,25,180);
+	Release(MotorMutex_B);
+	
+	
+	if (SensorUS(IN_4)>NEAR)
+	{
+		Wait(800);
+		OnRev(OUT_AC,50);  
+		
+	}
+	
+	Acquire(MotorMutex_B);
+	RotateMotor(OUT_B,25,-180);
+	Release(MotorMutex_B);
+	
+	Wait(duration);
+	
+}
 int check_sides()
 {
     int left_signal;
     int right_signal;
     
     Wait(1000);
+	Acquire(MotorMutex_B);
+	
     RotateMotor(OUT_B,25,90);
     left_signal=SensorUS(S4);
     Wait(1000);
@@ -23,7 +49,11 @@ int check_sides()
     right_signal=SensorUS(S4);
     Wait(1000);
     RotateMotor(OUT_B,25,90);
+	
+	Release(MotorMutex_B);
     Wait(1000);
+	
+
     if (left_signal > right_signal)
     {
         return LEFT;
@@ -47,23 +77,12 @@ task main(){
     //    Off(OUT_A);
     while(true){
         
+	
         OnFwd(OUT_AC,50);
         while(SensorUS(S4)>NEAR);
         Off(OUT_AC);
-        RotateMotor(OUT_B,25,180);
-        
-        
-        if (SensorUS(IN_4)>NEAR)
-        {
-            Wait(800);
-            OnRev(OUT_AC,50);  
-            
-        }
-        
-        
-        RotateMotor(OUT_B,25,-180);
-        Wait(1000);
-        
+		
+       
         if (check_sides()==RIGHT)
         {
             OnFwd(OUT_A,50);
