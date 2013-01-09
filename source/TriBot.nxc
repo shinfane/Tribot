@@ -1,6 +1,6 @@
 
 #define THRESHOLD 25
-#define NEAR 30 //cm
+#define NEAR 29 //cm
 #define MIC SENSOR_2
 #define RIGHT 1 
 #define LEFT 0
@@ -12,18 +12,41 @@
 //  tasks do not impact each other
 
 mutex MotorMutex_B;
+int heading;
+string print_heading;
 
-void drive_backward (int duration)
+int read_compass()
 {
+	int i;
+	
+	i=SensorUS(IN_1);
+	heading=i*360/256;
+	Wait(20);
+	return heading;
+}
+
+
+void drive_backward()
+{
+	int backsignal;
+	string tmp;
+	
 	Acquire(MotorMutex_B);
 	RotateMotor(OUT_B,25,180);
 	Release(MotorMutex_B);
 	
+	backsignal=SensorUS(S4);
+	tmp=NumToStr(backsignal);
 	
-	if (SensorUS(IN_4)>NEAR)
+	TextOut(0,LCD_LINE1,"Back:");
+	TextOut(50,LCD_LINE1,tmp);
+	
+	if (backsignal>NEAR)
 	{
 		Wait(800);
-		OnRev(OUT_AC,50);  
+		OnRev(OUT_AC,50); 
+		Wait(500);
+		Off(OUT_AC);
 		
 	}
 	
@@ -31,23 +54,46 @@ void drive_backward (int duration)
 	RotateMotor(OUT_B,25,-180);
 	Release(MotorMutex_B);
 	
-	Wait(duration);
+	
 	
 }
 int check_sides()
 {
     int left_signal;
     int right_signal;
+	string tmp;
+	
     
     Wait(1000);
 	Acquire(MotorMutex_B);
 	
+	// turn motor to the left and check US
+
     RotateMotor(OUT_B,25,90);
     left_signal=SensorUS(S4);
-    Wait(1000);
+	
+	// print the sensor reading
+	
+    TextOut(0,LCD_LINE2,"LEFT:");
+	tmp=NumToStr(left_signal);
+	TextOut(50,LCD_LINE2,tmp);
+	
+	Wait(1000);
+	
+	// turn motor to the right and check US
+	
     RotateMotor(OUT_B,25,-180);
     right_signal=SensorUS(S4);
-    Wait(1000);
+    
+	// print the sesor reading
+
+	TextOut(0,LCD_LINE4,"RIGHT:");
+	tmp=NumToStr(right_signal);
+	TextOut(50,LCD_LINE4,tmp);
+	
+	Wait(1000);
+	
+	// rotate back to the front
     RotateMotor(OUT_B,25,90);
 	
 	Release(MotorMutex_B);
@@ -70,20 +116,33 @@ int check_sides()
 task main(){
     //    SetSensorLight(IN_3);
     SetSensorLowspeed(IN_4);
-    
+	SetSensorLowspeed(IN_1);
+	
+    int heading;
+	
     //    RotateMotor(OUT_A,75,60);
     //    Off(OUT_A);
     //    RotateMotor(OUT_A,75,-60);
     //    Off(OUT_A);
     while(true){
         
-	
+		
         OnFwd(OUT_AC,50);
         while(SensorUS(S4)>NEAR);
+		
         Off(OUT_AC);
 		
+		// Clean up the display
+		ClearScreen();
+		
+		heading=read_compass();
+		
+		TextOut(0,LCD_LINE5,"HEADING:");
+		NumOut(50,LCD_LINE5, heading);
+		
+		drive_backward();
        
-        if (check_sides()==RIGHT)
+        if (check_sides()==LEFT)
         {
             OnFwd(OUT_A,50);
             OnRev(OUT_C,50);

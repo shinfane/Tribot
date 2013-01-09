@@ -1,5 +1,6 @@
 # Path to the NXC compiler relative to the Makefile
 NXC=/Users/micha/bin/nbc
+NXTCOM=/Users/micha/bin/nxtcom
 
 # Options to pass to the compiler.
 # Use -EF to specify we are using enhanced firmware.
@@ -8,7 +9,7 @@ OPTIONS= -I=../$(SOURCE)/
 
 # Program settings
 #INTERFACE=BTH::NXT::00:16:53:17:BA:E0::1
-INTERFACE=usb
+INTERFACE=/dev/tty.NXT-DevB
 SOURCE=source
 BUILD=build
 PROGRAM=Tribot
@@ -37,9 +38,10 @@ clean:
 
 deploy: $(SOURCE)/$(PROGRAM).nxc
 	cd $(SOURCE); \
-	$(NXC) -d -S=$(INTERFACE) -O=../$(BUILD)/$(PROGRAM).rxe  \
+	$(NXC) -O=../$(BUILD)/$(PROGRAM).rxe  \
 		$(OPTIONS) \
-		$(PROGRAM).nxc 
+		$(PROGRAM).nxc ;\
+	$(NXTCOM) -v -S=$(INTERFACE) ../$(BUILD)/$(PROGRAM).rxe
 
 run: $(SOURCE)/$(PROGRAM).nxc
 	cd $(SOURCE); \

@@ -3,6 +3,8 @@
 //    data exchange functions using bluetooth
 //    based on BTLib by Daniele Benedettelli
 //
+// additional info: the connection initiator is always the master
+// please make sure you choose the right NXT as the master
 
 #ifndef CHANNEL
 #define CHANNEL   1    // slave channel can be 1, 2 or 3
