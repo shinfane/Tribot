@@ -1,0 +1,95 @@
+#include "protocol.h"
+
+#define NAP 10  // milliseconds
+
+
+task main()
+{
+	// -- strings we will use later:
+	string a, b, c, t1, t2, t3, t4, m;
+	
+	// -- iteration counter, and received messages counter:
+	int i = 1, n = 0;
+	
+	// -- initialize screen:
+	TextOut(0, LCD_LINE1, "          Master", true);
+	TextOut(0, LCD_LINE2, "A: *");
+	TextOut(0, LCD_LINE3, "B: *");
+	TextOut(0, LCD_LINE4, "C: *");
+	TextOut(0, LCD_LINE5, "S: * * * *");
+	TextOut(0, LCD_LINE8, "rcvd msgs:");
+	
+	// -- motors A,B,C in "passive" mode, and reset their counters:
+	ResetAllTachoCounts(OUT_ABC);
+	Float(OUT_ABC);
+	
+	// -- initialize the four touch sensors:
+	SetSensorTouch(S1);
+	SetSensorTouch(S2);
+	SetSensorTouch(S3);
+	SetSensorTouch(S4);
+	
+	// -- check the bluetooth connection (we need to behave as a "master"):
+	// -- if no "master" connection is there, then it will complain and exit
+	mastercheck();
+	
+	// -- main loop:
+	for(;;)
+	{
+		// -- get message from slave:
+		m = receivefromslave();
+		
+		// -- an empty string means "no message", so we test its lenght:
+		if(StrLen(m)>0)
+		{
+			// -- increment "received messages" counter, and print it and the message:
+			n++;
+			TextOut(0, LCD_LINE7, "                ");
+			TextOut(0, LCD_LINE7, m);
+			NumOut(66, LCD_LINE8, n);
+		}
+		
+		// -- first phase: get sensors and motors values and convert to strings:
+		t1 = NumToStr(SENSOR_1);
+		t2 = NumToStr(SENSOR_2);
+		t3 = NumToStr(SENSOR_3);
+		t4 = NumToStr(SENSOR_4);
+		
+		a = NumToStr(MotorRotationCount(OUT_A));
+		b = NumToStr(MotorRotationCount(OUT_B));
+		c = NumToStr(MotorRotationCount(OUT_C));
+		
+		// -- build the status string to be sent via bluetooth:
+		//    first, the four 0/1 touch sensor values,
+		//    then the motors rotation count values separated by commas:
+		m = StrCat(t1,t2,t3,t4, ",", a, ",", b, ",", c);
+		
+		// -- output the number of the message we are going to send out:
+		NumOut(0, LCD_LINE1, i);
+		
+		// -- output motor and values:
+		TextOut(18, LCD_LINE2, a);
+		TextOut(18, LCD_LINE3, b);
+		TextOut(18, LCD_LINE4, c);
+		TextOut(18, LCD_LINE5, t1);
+		TextOut(30, LCD_LINE5, t2);
+		TextOut(42, LCD_LINE5, t3);
+		TextOut(54, LCD_LINE5, t4);
+		
+		// -- send out the message via bluetooth channel to the slave NXT:
+		sendtoslave(m);
+		
+		// -- have a small nap (to not to quickly drain batteries)...
+		Wait(NAP);
+		
+		// -- ...but don't fall asleep!
+		ResetSleepTimer();
+		
+		// -- update the counter, and continue looping:
+		i++;
+	}
+}
+
+
+// --- end ---
+

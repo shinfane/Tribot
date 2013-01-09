@@ -1,0 +1,53 @@
+#include "protocol.h"
+
+#define NAP 10  // milliseconds
+
+task main()
+{
+	string r, m, tmp;
+	int i = 0, j;
+	
+	// -- initialize as "slave" NXT
+	slavecheck();
+	
+	// -- screen preparation
+	TextOut(0, LCD_LINE1, "sending:");
+	TextOut(0, LCD_LINE4, "receiving:");
+	
+	for(;;)
+	{
+		// -- get a message string from the remote NXT unit:
+		r = receivefrommaster();
+		
+		// -- lenght of message string (zero means "no message received"): 
+		j = StrLen(r);
+		
+		// -- print to screen only if there is a message
+		if(j!=0)
+		{
+			TextOut(0, LCD_LINE5, "                ");
+			TextOut(0, LCD_LINE5, r);
+		}
+		
+		// -- build some message to send out (and print to screen before sending):
+		tmp = NumToStr(i);
+		m = StrCat("msg", tmp);
+		TextOut(54, LCD_LINE1, m);
+		
+		// -- send the message via bluetooth channel to the master NXT:
+		sendtomaster(m);
+		
+		// -- have a small nap (to not to quickly drain batteries)...
+		Wait(NAP);
+		
+		// -- ...but don't fall asleep!
+		ResetSleepTimer();
+		
+		// -- update the counter, and continue looping:
+		i++;
+	}
+}
+
+
+// --- end ---
+

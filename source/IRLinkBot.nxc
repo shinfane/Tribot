@@ -1,0 +1,15 @@
+#define IRPORT 3
+
+task main(){
+
+	
+	SetSensorLowspeed(IN_3);
+	while(true)
+	{
+		HTPFComboPWM(3,1,PF_PWM_FWD3,PF_PWM_FWD3);
+	}
+	
+	Wait(5000);
+	
+}
+

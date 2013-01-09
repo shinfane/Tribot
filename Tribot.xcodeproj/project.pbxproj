@@ -10,12 +10,17 @@
 		8646C45E169C429A00D75A0B /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		8646C460169C429A00D75A0B /* NBCCommon.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NBCCommon.nxc; sourceTree = "<group>"; };
 		8646C461169C429A00D75A0B /* TriBot.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TriBot.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		86D63681169CBF2A00295860 /* IRLinkBot.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IRLinkBot.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		86D63686169D834400295860 /* protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = protocol.h; sourceTree = "<group>"; };
+		86D63687169D83E100295860 /* master.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = master.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		86D63688169D842300295860 /* slave.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = slave.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		8646C451169C424E00D75A0B = {
 			isa = PBXGroup;
 			children = (
+				86D63685169D831B00295860 /* libs */,
 				8646C45E169C429A00D75A0B /* Makefile */,
 				8646C45F169C429A00D75A0B /* source */,
 			);
@@ -26,8 +31,19 @@
 			children = (
 				8646C460169C429A00D75A0B /* NBCCommon.nxc */,
 				8646C461169C429A00D75A0B /* TriBot.nxc */,
+				86D63681169CBF2A00295860 /* IRLinkBot.nxc */,
 			);
 			path = source;
+			sourceTree = "<group>";
+		};
+		86D63685169D831B00295860 /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				86D63686169D834400295860 /* protocol.h */,
+				86D63687169D83E100295860 /* master.nxc */,
+				86D63688169D842300295860 /* slave.nxc */,
+			);
+			path = libs;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

@@ -12,17 +12,23 @@ INTERFACE=usb
 SOURCE=source
 BUILD=build
 PROGRAM=Tribot
-
+LINKBOT=IRLinkBot
 
 ############
 
-all: $(PROGRAM).rxe
+all: $(PROGRAM).rxe $(LINKBOT).rxe
 
 $(PROGRAM).rxe: $(SOURCE)/$(PROGRAM).nxc
 	cd $(SOURCE); \
 	$(NXC) -O=../$(BUILD)/$(PROGRAM).rxe  \
 		$(OPTIONS) \
 		$(PROGRAM).nxc 
+
+$(LINKBOT).rxe: $(SOURCE)/$(LINKBOT).nxc
+	cd $(SOURCE); \
+	$(NXC) -O=../$(BUILD)/$(LINKBOT).rxe \
+		$(OPTIONS) \
+		$(LINKBOT).nxc
 
 clean:
 	/bin/rm -vf $(BUILD)/$(PROGRAM).rxe
