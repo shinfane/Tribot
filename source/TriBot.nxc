@@ -15,6 +15,8 @@ mutex MotorMutex_B;
 int heading;
 string print_heading;
 
+
+
 int read_compass()
 {
 	int i;
@@ -126,7 +128,7 @@ task main(){
     //    Off(OUT_A);
     while(true){
         
-		
+		  
         OnFwd(OUT_AC,50);
         while(SensorUS(S4)>NEAR);
 		

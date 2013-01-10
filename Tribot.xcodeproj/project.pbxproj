@@ -62,9 +62,37 @@
 			passBuildSettingsInEnvironment = 1;
 			productName = Tribot;
 		};
+		86844D55169F10820067AD6E /* download */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(TARGET_NAME)";
+			buildConfigurationList = 86844D56169F10820067AD6E /* Build configuration list for PBXLegacyTarget "download" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "";
+			dependencies = (
+			);
+			name = download;
+			passBuildSettingsInEnvironment = 1;
+			productName = download;
+		};
+		86844D59169F12960067AD6E /* test */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(TARGET_NAME)";
+			buildConfigurationList = 86844D5A169F12960067AD6E /* Build configuration list for PBXLegacyTarget "test" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "";
+			dependencies = (
+			);
+			name = test;
+			passBuildSettingsInEnvironment = 1;
+			productName = test;
+		};
 		86D192D6169C484A00FFA613 /* deploy */ = {
 			isa = PBXLegacyTarget;
-			buildArgumentsString = deploy;
+			buildArgumentsString = "$(ACTION) $(TARGET_NAME)";
 			buildConfigurationList = 86D192D9169C484A00FFA613 /* Build configuration list for PBXLegacyTarget "deploy" */;
 			buildPhases = (
 			);
@@ -94,6 +122,8 @@
 			targets = (
 				8646C458169C424E00D75A0B /* Tribot */,
 				86D192D6169C484A00FFA613 /* deploy */,
+				86844D55169F10820067AD6E /* download */,
+				86844D59169F12960067AD6E /* test */,
 			);
 		};
 /* End PBXProject section */
@@ -165,6 +195,48 @@
 			};
 			name = Release;
 		};
+		86844D57169F10820067AD6E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		86844D58169F10820067AD6E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		86844D5B169F12960067AD6E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		86844D5C169F12960067AD6E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		86D192D7169C484A00FFA613 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -206,6 +278,22 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		86844D56169F10820067AD6E /* Build configuration list for PBXLegacyTarget "download" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				86844D57169F10820067AD6E /* Debug */,
+				86844D58169F10820067AD6E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		86844D5A169F12960067AD6E /* Build configuration list for PBXLegacyTarget "test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				86844D5B169F12960067AD6E /* Debug */,
+				86844D5C169F12960067AD6E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 		86D192D9169C484A00FFA613 /* Build configuration list for PBXLegacyTarget "deploy" */ = {
 			isa = XCConfigurationList;
