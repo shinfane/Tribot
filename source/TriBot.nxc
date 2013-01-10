@@ -1,12 +1,18 @@
+// A few things we need to know
+// wheel diameter 5.6 cm.
+// Full Wheel rotation: 17,6 cm
+// Degrees per cm: 20,45
+// Bot in place turn circle circumference: PI X 11,5cm = 36 cm.
+// This means 1 Degree / mm.
+//
+// So turning 10 degrees eastwards: rotate the motors (turn mode) by 20 degrees.
 
 #define THRESHOLD 25
 #define NEAR 29 //cm
 #define MIC SENSOR_2
 #define RIGHT 1 
 #define LEFT 0
-
-// Turn to each side
-// and check distance
+#define FILENAME "track.txt"
 
 // decided to use mutexes, just to make sure that
 //  tasks do not impact each other
@@ -15,6 +21,15 @@ mutex MotorMutex_B;
 int heading;
 string print_heading;
 
+// File handling stuff
+
+byte fileHandle;
+short fileSize=512;
+short bytesToFile;
+string write,read;
+
+
+
 
 
 int read_compass()
@@ -22,7 +37,7 @@ int read_compass()
 	int i;
 	
 	i=SensorUS(IN_1);
-	heading=i*360/256;
+	heading=i*360/255;
 	Wait(20);
 	return heading;
 }
@@ -32,10 +47,14 @@ void drive_backward()
 {
 	int backsignal;
 	string tmp;
+
+	// turn Sensor backwards
 	
 	Acquire(MotorMutex_B);
 	RotateMotor(OUT_B,25,180);
 	Release(MotorMutex_B);
+	
+	// read sensor
 	
 	backsignal=SensorUS(S4);
 	tmp=NumToStr(backsignal);
@@ -43,6 +62,7 @@ void drive_backward()
 	TextOut(0,LCD_LINE1,"Back:");
 	TextOut(50,LCD_LINE1,tmp);
 	
+	// if no obstacle, 
 	if (backsignal>NEAR)
 	{
 		Wait(800);
@@ -59,6 +79,11 @@ void drive_backward()
 	
 	
 }
+
+
+// Turn to each side
+// and check distance
+
 int check_sides()
 {
     int left_signal;
