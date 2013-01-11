@@ -31,28 +31,12 @@ $(PROGRAM).rxe: $(SOURCE)/$(PROGRAM).nxc
 		$(PROGRAM).nxc ; \
 	$(DEPLOY)	
 
-	
-
-#$(TARGET_NAME).rxe: $(SOURCE)/$(TARGET_NAME).nxc
-#	cd $(SOURCE); \
-#	$(NXC) -O=../$(BUILD)/$(TARGET_NAME).rxe \
-#		$(OPTIONS) \
-#		$(TAGET_NAME).nxc
-	
-
-
 test:
 	/usr/bin/touch $(SOURCE)/foobar
 
 clean:
 	/bin/rm -vf $(BUILD)/*.rxe
 
-#deploy: $(SOURCE)/$(PROGRAM).nxc
-#	cd $(SOURCE); \
-#	$(NXC) -O=../$(BUILD)/$(PROGRAM).rxe  \
-#		$(OPTIONS) \
-#		$(PROGRAM).nxc ;\
-#	$(NXTCOM) -v -S=$(INTERFACE) ../$(BUILD)/$(PROGRAM).rxe
 
 download: 
 	$(NXTCOM) -v -S=$(INTERFACE) ../$(BUILD)/$(PROGRAM).rxe
