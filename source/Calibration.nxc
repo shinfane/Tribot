@@ -1,0 +1,78 @@
+////////////////////////////////////////////////////////
+//compass calibration code, this must be run if the design
+//changed and/or the environment changed
+//Rev 1.0
+//16/03/2009
+//Team Hotel
+/////////////////////////////////////////////////////////
+//CALIBRATION PROCCEDURE:
+//1. run the code
+//2. watch the robot so that it rotates UNIFORMLY for 1.5
+//   to 2 rotations
+//3. press the middle button on the brick to stop rotation
+//4. check the displayed reading(test for 0, 90, 180, 360 deg)
+/////////////////////////////////////////////////////////
+
+
+
+#define L_MOTOR OUT_C
+#define R_MOTOR OUT_B
+#define CLAW OUT_A
+#define DRIVE_MOTORS OUT_BC
+
+
+
+/////////////////////////////////////////////////////
+//read the compass, store values
+/////////////////////////////////////////////////////
+task readComp(){
+	int CompReading;
+	
+	while(true){
+		
+		CompReading = SensorHTCompass(IN_3);
+		ClearScreen();
+		TextOut(0,LCD_LINE1, "Reading:");
+		NumOut(60,LCD_LINE1, CompReading);
+		Wait(100);           //delay for 1 sec  (other part of loop takes 33ms)
+		
+	}
+}
+
+
+
+///////////////////////////////////////////////////////////
+//rotate the robot 2 turns and this will calibrate
+//the compass sensor
+//////////////////////////////////////////////////////////
+void calibrate(){
+	int pressed = 0;
+	byte cmdBuff[3];
+	cmdBuff[0] = 0x02;      //first byte, compass address
+	cmdBuff[1] = 0x41;      //second byte, change the mode
+	cmdBuff[2] = 0x43;      //third byte, change to calibration mode
+	I2CWrite(IN_3, 0, cmdBuff);   //write the 3 bytes to the compass
+	
+	Wait(200);
+	OnFwdEx(L_MOTOR, -15, RESET_NONE);    //rotate
+	OnFwdEx(R_MOTOR, 15, RESET_NONE);
+	while(pressed <= 0){
+		pressed = ButtonPressed(BTN4, true);     //watch for the button press
+		Wait(100);
+	}
+	
+	cmdBuff[2] = 0x00;              //change the third byte to normal mode
+	I2CWrite(IN_3, 0, cmdBuff);     //write the command to compass
+	Wait(200);
+	PlayToneEx(3000, 200, 3, false);
+	OffEx(DRIVE_MOTORS, RESET_NONE);
+	start readComp;                 //start to read the compass
+}
+
+
+task main()
+{
+	
+	SetSensorLowspeed(IN_3);
+	calibrate();
+}

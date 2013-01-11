@@ -12,8 +12,13 @@ OPTIONS= -I=../$(SOURCE)/
 INTERFACE=/dev/tty.NXT-DevB
 SOURCE=source
 BUILD=build
-PROGRAM=Tribot
-LINKBOT=IRLinkBot
+#PROGRAM=Tribot
+PROGRAM=$(TARGET_NAME)
+CALIBRATION=Calibration
+
+ifeq ($(CONFIGURATION), Debug)
+	DEPLOY=$(NXTCOM) -v -S=$(INTERFACE) ../$(BUILD)/$(PROGRAM).rxe
+endif
 
 ############
 
@@ -21,21 +26,26 @@ all: $(PROGRAM).rxe
 
 $(PROGRAM).rxe: $(SOURCE)/$(PROGRAM).nxc
 	cd $(SOURCE); \
-	echo $(ACTION); \
 	$(NXC) -O=../$(BUILD)/$(PROGRAM).rxe  \
 		$(OPTIONS) \
-		$(PROGRAM).nxc 
+		$(PROGRAM).nxc ; \
+	$(DEPLOY)	
 
-$(LINKBOT).rxe: $(SOURCE)/$(LINKBOT).nxc
-	cd $(SOURCE); \
-	$(NXC) -O=../$(BUILD)/$(LINKBOT).rxe \
-		$(OPTIONS) \
-		$(LINKBOT).nxc
+	
+
+#$(TARGET_NAME).rxe: $(SOURCE)/$(TARGET_NAME).nxc
+#	cd $(SOURCE); \
+#	$(NXC) -O=../$(BUILD)/$(TARGET_NAME).rxe \
+#		$(OPTIONS) \
+#		$(TAGET_NAME).nxc
+	
+
+
 test:
 	/usr/bin/touch $(SOURCE)/foobar
 
 clean:
-	/bin/rm -vf $(BUILD)/$(PROGRAM).rxe
+	/bin/rm -vf $(BUILD)/*.rxe
 
 #deploy: $(SOURCE)/$(PROGRAM).nxc
 #	cd $(SOURCE); \
