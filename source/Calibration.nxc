@@ -17,7 +17,6 @@
 
 #define L_MOTOR OUT_C
 #define R_MOTOR OUT_B
-#define CLAW OUT_A
 #define DRIVE_MOTORS OUT_BC
 
 
