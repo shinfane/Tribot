@@ -21,11 +21,14 @@
 #define CM_PER_MOT_DEGREE		CM_PER_ROTATION / DEG_PER_CIRCLE
 
 #define TURN_RATIO				(BOT_TURN_CIRCLE / (DEG_PER_CIRCLE / CM_PER_ROTATION ))
+#define CLOCKWISE	true
 
 
 #define THRESHOLD 25
 #define NEAR 29 //cm
 #define MIC SENSOR_2
+#define RADARSTEP 20
+
 #define RIGHT 1 
 #define LEFT 0
 #define FILENAME "track.txt"
@@ -35,8 +38,9 @@
 
 mutex MotorMutex_B;
 int heading=0;
-int initial_heading, travel_distance=0;
-string print_heading;
+int escape_heading, travel_distance=0;
+int RadarResult[18];
+
 
 // File handling stuff
 
@@ -45,20 +49,41 @@ short fileSize=512;
 short bytesToFile;
 string write,read;
 
-void BotTurnDegrees(int degrees)
+void BotTurnDegrees(int degrees, bool turndir)
 {
 
 	// calculate the degrees forehand, just to make sure the sync
 	// start of the motor doesn't take longer than needed
 	
-	int motordeg_A, motordeg_C;
+	int motordeg_A, dir,pressed;
+	
+	if (turndir) {
+		dir=-100;
+	} else
+	{
+		dir=100;
+	}
+
 	motordeg_A = degrees * CM_PER_BOTTURNDEGREE * MOT_DEG_PER_CM;
-	motordeg_C = -1 * motordeg_A;
+
+	TextOut(0,LCD_LINE1,"StartH:");
+	TextOut(0,LCD_LINE2,"MotDeg:");
+	TextOut(0,LCD_LINE3,"Turn:");
+	TextOut(0,LCD_LINE4,"Dir:");
+	NumOut(40,LCD_LINE1,heading);
+	NumOut(40,LCD_LINE2,motordeg_A);
+	NumOut(40,LCD_LINE3,degrees);
+	NumOut(40,LCD_LINE4,dir);
+
+//	while(pressed <= 0){
+//		pressed = ButtonPressed(BTN4, true);     //watch for the button press
+//		Wait(100);
+//	}
+
+	RotateMotorEx(OUT_AC,50,motordeg_A,dir,true,true);
 
 	
-	RotateMotor(OUT_A,50,motordeg_A);
-	RotateMotor(OUT_C,50,motordeg_C);
-
+	Wait(5000);
 }
 
 
@@ -70,6 +95,53 @@ int read_compass()
 	heading=i*360/255;
 	Wait(20);
 	return heading;
+}
+
+int radar_check()
+{
+	int i,tmp=0;
+	escape_heading=0;
+	
+	
+	for(int i=1;i<19;i++) {
+		RotateMotor(OUT_B,25,RADARSTEP);
+		RadarResult[i-1]=SensorUS(S4);
+		ClearScreen();
+		if(RadarResult[i-1]>tmp)
+		{
+			tmp=RadarResult[i-1];
+			escape_heading=i*RADARSTEP;
+			TextOut(0,LCD_LINE3,"ESCAPE:");
+			NumOut(50,LCD_LINE3,escape_heading);
+			
+
+
+		}
+		Wait(200);
+
+	}
+	RotateMotor(OUT_B,25,-360);
+	
+	return escape_heading;
+	
+}
+
+void SetHeading(int degrees)
+{
+	int tmp,dir=100;
+	tmp=read_compass();
+	NumOut(0,LCD_LINE1,tmp);
+	NumOut(0,LCD_LINE2,degrees);
+	
+	while(tmp>(degrees+3) || tmp<(degrees-3))
+	{
+		RotateMotorEx(OUT_AC,30,4,dir,true,false);
+		Wait(100);
+		tmp=read_compass();
+		NumOut(0,LCD_LINE1,tmp);
+		if (tmp>180) dir=-100;
+		
+	}
 }
 
 
@@ -85,14 +157,10 @@ void drive_backward()
 	Release(MotorMutex_B);
 	
 	// read sensor
-	
 	backsignal=SensorUS(S4);
-	tmp=NumToStr(backsignal);
+	PlayFile("ping.rso");
 	
-	TextOut(0,LCD_LINE1,"Back:");
-	TextOut(50,LCD_LINE1,tmp);
-	
-	// if no obstacle, 
+
 	if (backsignal>NEAR)
 	{
 		Wait(800);
@@ -127,27 +195,19 @@ int check_sides()
 	// turn motor to the left and check US
 
     RotateMotor(OUT_B,25,90);
+	
     left_signal=SensorUS(S4);
-	
-	// print the sensor reading
-//	
-//    TextOut(0,LCD_LINE2,"LEFT:");
-//	tmp=NumToStr(left_signal);
-//	TextOut(50,LCD_LINE2,tmp);
-	
+	PlayFile("ping.rso");
+
 	Wait(1000);
 	
 	// turn motor to the right and check US
 	
     RotateMotor(OUT_B,25,-180);
-    right_signal=SensorUS(S4);
-    
-	// print the sesor reading
-
-//	TextOut(0,LCD_LINE4,"RIGHT:");
-//	tmp=NumToStr(right_signal);
-//	TextOut(50,LCD_LINE4,tmp);
 	
+    right_signal=SensorUS(S4);
+	PlayFile("ping.rso");
+
 	Wait(1000);
 	
 	// rotate back to the front
@@ -190,18 +250,11 @@ task showinfo(){
 
 task move(){
     //    SetSensorLight(IN_3);
-    SetSensorLowspeed(IN_4);
-	SetSensorLowspeed(IN_1);
 	
 	 ResetRotationCount(OUT_AC);
 	 ResetRotationCount(OUT_B);
 	
 	
-	
-    //    RotateMotor(OUT_A,75,60);
-    //    Off(OUT_A);
-    //    RotateMotor(OUT_A,75,-60);
-    //    Off(OUT_A);
     while(true){
         
 		  
@@ -211,7 +264,6 @@ task move(){
 		
         Off(OUT_AC);
 					
-		
 		heading=read_compass();
 		
 		
@@ -233,16 +285,23 @@ task move(){
 
         }
         
-        Wait(800);
+        Wait(750);
         
-        Off(OUT_AC);
-	
+        Off(OUT_AC);	
 
         Wait(2000);
     }
 }
 
 task main(){
-	Precedes(move,showinfo);
+
+	int out;
+	SetSensorLowspeed(IN_4);
+	SetSensorLowspeed(IN_1);
+    out=radar_check();
+	BotTurnDegrees(out,CLOCKWISE);
+	Wait(10000);
+	
+	//Precedes(move,showinfo);
 }
 
