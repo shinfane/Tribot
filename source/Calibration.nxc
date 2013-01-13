@@ -15,9 +15,9 @@
 
 
 
-#define L_MOTOR OUT_C
-#define R_MOTOR OUT_B
-#define DRIVE_MOTORS OUT_BC
+#define L_MOTOR OUT_A
+#define R_MOTOR OUT_C
+#define DRIVE_MOTORS OUT_AC
 
 
 
@@ -29,7 +29,7 @@ task readComp(){
 	
 	while(true){
 		
-		CompReading = SensorHTCompass(IN_3);
+		CompReading = SensorHTCompass(IN_1);
 		ClearScreen();
 		TextOut(0,LCD_LINE1, "Reading:");
 		NumOut(60,LCD_LINE1, CompReading);
@@ -50,18 +50,18 @@ void calibrate(){
 	cmdBuff[0] = 0x02;      //first byte, compass address
 	cmdBuff[1] = 0x41;      //second byte, change the mode
 	cmdBuff[2] = 0x43;      //third byte, change to calibration mode
-	I2CWrite(IN_3, 0, cmdBuff);   //write the 3 bytes to the compass
+	I2CWrite(IN_1, 0, cmdBuff);   //write the 3 bytes to the compass
 	
 	Wait(200);
-	OnFwdEx(L_MOTOR, -15, RESET_NONE);    //rotate
-	OnFwdEx(R_MOTOR, 15, RESET_NONE);
+	OnFwdEx(L_MOTOR, -20, RESET_NONE);    //rotate
+	OnFwdEx(R_MOTOR, 20, RESET_NONE);
 	while(pressed <= 0){
 		pressed = ButtonPressed(BTN4, true);     //watch for the button press
 		Wait(100);
 	}
 	
 	cmdBuff[2] = 0x00;              //change the third byte to normal mode
-	I2CWrite(IN_3, 0, cmdBuff);     //write the command to compass
+	I2CWrite(IN_1, 0, cmdBuff);     //write the command to compass
 	Wait(200);
 	PlayToneEx(3000, 200, 3, false);
 	OffEx(DRIVE_MOTORS, RESET_NONE);
@@ -72,6 +72,6 @@ void calibrate(){
 task main()
 {
 	
-	SetSensorLowspeed(IN_3);
+	SetSensorLowspeed(IN_1);
 	calibrate();
 }
