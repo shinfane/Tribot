@@ -9,7 +9,7 @@
 /* Begin PBXFileReference section */
 		8646C45E169C429A00D75A0B /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		8646C460169C429A00D75A0B /* NBCCommon.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NBCCommon.nxc; sourceTree = "<group>"; };
-		8646C461169C429A00D75A0B /* TriBot.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TriBot.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		8646C461169C429A00D75A0B /* TriBot.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TriBot.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		86964E1216A015B30018A6BE /* Calibration.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Calibration.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		86D63681169CBF2A00295860 /* IRLinkBot.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IRLinkBot.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		86D63686169D834400295860 /* protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = protocol.h; sourceTree = "<group>"; };

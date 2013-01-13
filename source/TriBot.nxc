@@ -18,6 +18,7 @@
 #define MOT_DEG_PER_CM 			(DEG_PER_CIRCLE / CM_PER_ROTATION)
 #define BOT_TURN_CIRCLE 		(_PI * BOT_WIDTH)
 #define CM_PER_BOTTURNDEGREE	(BOT_TURN_CIRCLE/DEG_PER_CIRCLE)
+#define CM_PER_MOT_DEGREE		CM_PER_ROTATION / DEG_PER_CIRCLE
 
 #define TURN_RATIO				(BOT_TURN_CIRCLE / (DEG_PER_CIRCLE / CM_PER_ROTATION ))
 
@@ -33,7 +34,8 @@
 //  tasks do not impact each other
 
 mutex MotorMutex_B;
-int heading;
+int heading=0;
+int initial_heading, travel_distance=0;
 string print_heading;
 
 // File handling stuff
@@ -55,7 +57,7 @@ void BotTurnDegrees(int degrees)
 
 	
 	RotateMotor(OUT_A,50,motordeg_A);
-	RotateMotor(OUT_C,50,(-1 * motordeg_C));
+	RotateMotor(OUT_C,50,motordeg_C);
 
 }
 
@@ -128,10 +130,10 @@ int check_sides()
     left_signal=SensorUS(S4);
 	
 	// print the sensor reading
-	
-    TextOut(0,LCD_LINE2,"LEFT:");
-	tmp=NumToStr(left_signal);
-	TextOut(50,LCD_LINE2,tmp);
+//	
+//    TextOut(0,LCD_LINE2,"LEFT:");
+//	tmp=NumToStr(left_signal);
+//	TextOut(50,LCD_LINE2,tmp);
 	
 	Wait(1000);
 	
@@ -142,9 +144,9 @@ int check_sides()
     
 	// print the sesor reading
 
-	TextOut(0,LCD_LINE4,"RIGHT:");
-	tmp=NumToStr(right_signal);
-	TextOut(50,LCD_LINE4,tmp);
+//	TextOut(0,LCD_LINE4,"RIGHT:");
+//	tmp=NumToStr(right_signal);
+//	TextOut(50,LCD_LINE4,tmp);
 	
 	Wait(1000);
 	
@@ -167,13 +169,34 @@ int check_sides()
     
 }
 
+task showinfo(){
 
-task main(){
+	while(true) {
+
+		// ClearScreen();
+		
+		travel_distance = MotorRotationCount(OUT_C) * CM_PER_MOT_DEGREE ;
+		TextOut(0,LCD_LINE5,"HEADING:");
+		NumOut(50,LCD_LINE5, heading);
+		TextOut(0,LCD_LINE6,"DIST:");
+		NumOut(50,LCD_LINE6, travel_distance);
+		
+		Wait(1000);
+
+	}
+	
+}
+
+
+task move(){
     //    SetSensorLight(IN_3);
     SetSensorLowspeed(IN_4);
 	SetSensorLowspeed(IN_1);
 	
-    int heading;
+	 ResetRotationCount(OUT_AC);
+	 ResetRotationCount(OUT_B);
+	
+	
 	
     //    RotateMotor(OUT_A,75,60);
     //    Off(OUT_A);
@@ -185,15 +208,12 @@ task main(){
         OnFwdSync(OUT_AC,50,0);
         while(SensorUS(S4)>NEAR);
 		
-        Off(OUT_AC);
 		
-		// Clean up the display
-		ClearScreen();
+        Off(OUT_AC);
+					
 		
 		heading=read_compass();
 		
-		TextOut(0,LCD_LINE5,"HEADING:");
-		NumOut(50,LCD_LINE5, heading);
 		
 		drive_backward();
        
@@ -201,7 +221,7 @@ task main(){
         {
          //   OnFwd(OUT_A,50);
          //   OnRev(OUT_C,50);
-			OnFwdSync(OUT_AC,50,100);
+			OnFwdSync(OUT_AC,50,-100);
             
         } 
         else
@@ -209,14 +229,20 @@ task main(){
          //   OnFwd(OUT_C,50);
          //   OnRev(OUT_A,50);
 
-			OnFwdSync(OUT_AC,50,-100);
+			OnFwdSync(OUT_AC,50,100);
 
         }
         
-        Wait(500);
+        Wait(800);
         
         Off(OUT_AC);
+	
+
         Wait(2000);
     }
+}
+
+task main(){
+	Precedes(move,showinfo);
 }
 
