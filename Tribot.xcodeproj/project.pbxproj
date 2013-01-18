@@ -8,7 +8,6 @@
 
 /* Begin PBXFileReference section */
 		8646C45E169C429A00D75A0B /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
-		8646C460169C429A00D75A0B /* NBCCommon.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NBCCommon.nxc; sourceTree = "<group>"; };
 		8646C461169C429A00D75A0B /* TriBot.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TriBot.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		86964E1216A015B30018A6BE /* Calibration.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Calibration.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		86D63681169CBF2A00295860 /* IRLinkBot.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IRLinkBot.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
@@ -30,7 +29,6 @@
 		8646C45F169C429A00D75A0B /* source */ = {
 			isa = PBXGroup;
 			children = (
-				8646C460169C429A00D75A0B /* NBCCommon.nxc */,
 				8646C461169C429A00D75A0B /* TriBot.nxc */,
 				86964E1216A015B30018A6BE /* Calibration.nxc */,
 				86D63681169CBF2A00295860 /* IRLinkBot.nxc */,
@@ -119,6 +117,19 @@
 			passBuildSettingsInEnvironment = 1;
 			productName = deploy;
 		};
+		86D79CA116A8AA7E00909D94 /* IRLinkBot */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 86D79CA516A8AA7E00909D94 /* Build configuration list for PBXLegacyTarget "IRLinkBot" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			dependencies = (
+			);
+			name = IRLinkBot;
+			passBuildSettingsInEnvironment = 1;
+			productName = IRLinkBot;
+		};
 /* End PBXLegacyTarget section */
 
 /* Begin PBXProject section */
@@ -140,11 +151,85 @@
 				86844D55169F10820067AD6E /* download */,
 				86844D59169F12960067AD6E /* test */,
 				86964E1816A01D940018A6BE /* Calibration */,
+				86D79CA116A8AA7E00909D94 /* IRLinkBot */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin XCBuildConfiguration section */
+		8626446A16A96CFB00773DB0 /* NXT-MI1 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+			};
+			name = "NXT-MI1";
+		};
+		8626446B16A96CFB00773DB0 /* NXT-MI1 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = "NXT-MI1";
+		};
+		8626446C16A96CFB00773DB0 /* NXT-MI1 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = "NXT-MI1";
+		};
+		8626446D16A96CFB00773DB0 /* NXT-MI1 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = "NXT-MI1";
+		};
+		8626446E16A96CFB00773DB0 /* NXT-MI1 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = "NXT-MI1";
+		};
+		8626446F16A96CFB00773DB0 /* NXT-MI1 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = "NXT-MI1";
+		};
+		8626447016A96CFB00773DB0 /* NXT-MI1 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = "NXT-MI1";
+		};
 		8646C459169C424E00D75A0B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -274,92 +359,6 @@
 			};
 			name = Release;
 		};
-		86964E1C16A039AF0018A6BE /* Deploy */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-				COPY_PHASE_STRIP = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx;
-			};
-			name = Deploy;
-		};
-		86964E1D16A039AF0018A6BE /* Deploy */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEBUGGING_SYMBOLS = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Deploy;
-		};
-		86964E1E16A039AF0018A6BE /* Deploy */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEBUGGING_SYMBOLS = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Deploy;
-		};
-		86964E1F16A039AF0018A6BE /* Deploy */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEBUGGING_SYMBOLS = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Deploy;
-		};
-		86964E2016A039AF0018A6BE /* Deploy */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEBUGGING_SYMBOLS = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Deploy;
-		};
-		86964E2116A039AF0018A6BE /* Deploy */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEBUGGING_SYMBOLS = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Deploy;
-		};
 		86D192D7169C484A00FFA613 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -381,6 +380,27 @@
 			};
 			name = Release;
 		};
+		86D79CA216A8AA7E00909D94 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		86D79CA416A8AA7E00909D94 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -388,8 +408,8 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8646C459169C424E00D75A0B /* Debug */,
-				86964E1C16A039AF0018A6BE /* Deploy */,
 				8646C45A169C424E00D75A0B /* Release */,
+				8626446A16A96CFB00773DB0 /* NXT-MI1 */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -398,8 +418,8 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8646C45C169C424E00D75A0B /* Debug */,
-				86964E1D16A039AF0018A6BE /* Deploy */,
 				8646C45D169C424E00D75A0B /* Release */,
+				8626446B16A96CFB00773DB0 /* NXT-MI1 */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -408,8 +428,8 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				86844D57169F10820067AD6E /* Debug */,
-				86964E1F16A039AF0018A6BE /* Deploy */,
 				86844D58169F10820067AD6E /* Release */,
+				8626446D16A96CFB00773DB0 /* NXT-MI1 */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -418,8 +438,8 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				86844D5B169F12960067AD6E /* Debug */,
-				86964E2016A039AF0018A6BE /* Deploy */,
 				86844D5C169F12960067AD6E /* Release */,
+				8626446E16A96CFB00773DB0 /* NXT-MI1 */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -428,17 +448,28 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				86964E1A16A01D940018A6BE /* Debug */,
-				86964E2116A039AF0018A6BE /* Deploy */,
 				86964E1B16A01D940018A6BE /* Release */,
+				8626446F16A96CFB00773DB0 /* NXT-MI1 */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		86D192D9169C484A00FFA613 /* Build configuration list for PBXLegacyTarget "deploy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				86D192D7169C484A00FFA613 /* Debug */,
-				86964E1E16A039AF0018A6BE /* Deploy */,
 				86D192D8169C484A00FFA613 /* Release */,
+				8626446C16A96CFB00773DB0 /* NXT-MI1 */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		86D79CA516A8AA7E00909D94 /* Build configuration list for PBXLegacyTarget "IRLinkBot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				86D79CA216A8AA7E00909D94 /* Debug */,
+				86D79CA416A8AA7E00909D94 /* Release */,
+				8626447016A96CFB00773DB0 /* NXT-MI1 */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
