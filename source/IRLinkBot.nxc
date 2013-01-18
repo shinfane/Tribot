@@ -3,10 +3,14 @@
 task main(){
 
 	
-	SetSensorLowspeed(IN_3);
+	SetSensorLowspeed(S1);
+	Wait(50);
+	PlayTone(1400, 100);
 	while(true)
 	{
-		HTPFComboPWM(3,1,PF_PWM_FWD3,PF_PWM_FWD3);
+		HTPFComboDirect(S1, PF_CHANNEL_1, PF_CMD_FWD, PF_CMD_REV); 
+		HTPFComboDirect(S1, PF_CHANNEL_2, PF_CMD_FWD, PF_CMD_FWD);
+		//HTPFComboPWM(S1,1,PF_PWM_FWD3,PF_PWM_FWD3);
 	}
 	
 	Wait(5000);
