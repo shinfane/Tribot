@@ -16,7 +16,7 @@
 #define DEG_PER_CIRCLE 			360
 #define CM_PER_ROTATION 		(WHEELDIAM * _PI)
 #define MOT_DEG_PER_CM 			(DEG_PER_CIRCLE / CM_PER_ROTATION)
-#define BOT_TURN_CIRCLE 		(_PI * BOT_WIDTH)
+#define BOT_TURN_CIRCLE 		(PI * BOT_WIDTH)
 #define CM_PER_BOTTURNDEGREE	(BOT_TURN_CIRCLE/DEG_PER_CIRCLE)
 #define CM_PER_MOT_DEGREE		CM_PER_ROTATION / DEG_PER_CIRCLE
 
@@ -28,6 +28,7 @@
 #define NEAR 29 //cm
 #define MIC SENSOR_2
 #define RADARSTEP 20
+#define RADARINDEX 360/RADARSTEP
 
 #define RIGHT 1 
 #define LEFT 0
@@ -39,7 +40,7 @@
 mutex MotorMutex_B;
 int heading=0;
 int escape_heading, travel_distance=0;
-int RadarResult[18];
+int RadarResult[RADARINDEX];
 
 
 // File handling stuff
@@ -49,12 +50,13 @@ short fileSize=512;
 short bytesToFile;
 string write,read;
 
+///////////////////////////////////////////////////////////////
+// Turn the robot  <degrees> degrees in the <turndir> direction
+///////////////////////////////////////////////////////////////
+
 void BotTurnDegrees(int degrees, bool turndir)
 {
 
-	// calculate the degrees forehand, just to make sure the sync
-	// start of the motor doesn't take longer than needed
-	
 	int motordeg_A, dir,pressed;
 	
 	if (turndir) {
@@ -75,16 +77,20 @@ void BotTurnDegrees(int degrees, bool turndir)
 	NumOut(40,LCD_LINE3,degrees);
 	NumOut(40,LCD_LINE4,dir);
 
-//	while(pressed <= 0){
-//		pressed = ButtonPressed(BTN4, true);     //watch for the button press
-//		Wait(100);
-//	}
+	//	while(pressed <= 0){
+	//		pressed = ButtonPressed(BTN4, true);     //watch for the button press
+	//		Wait(100);
+	//	}
 
 	RotateMotorEx(OUT_AC,50,motordeg_A,dir,true,true);
-
 	
-	Wait(5000);
+	Wait(25000);
 }
+
+
+///////////////////////////////////////////////////////////////
+// Read the compass data
+///////////////////////////////////////////////////////////////
 
 
 int read_compass()
@@ -97,13 +103,19 @@ int read_compass()
 	return heading;
 }
 
+
+///////////////////////////////////////////////////////////////
+// Turn the radar head full 360 and set escape route 
+// towards the first free direction reported by US
+///////////////////////////////////////////////////////////////
+
 int radar_check()
 {
 	int i,tmp=0;
 	escape_heading=0;
 	
 	
-	for(int i=1;i<19;i++) {
+	for(int i=1;i<(360/RADARSTEP+1);i++) {
 		RotateMotor(OUT_B,25,RADARSTEP);
 		RadarResult[i-1]=SensorUS(S4);
 		ClearScreen();
@@ -113,8 +125,7 @@ int radar_check()
 			escape_heading=i*RADARSTEP;
 			TextOut(0,LCD_LINE3,"ESCAPE:");
 			NumOut(50,LCD_LINE3,escape_heading);
-			
-
+		
 
 		}
 		Wait(200);
@@ -126,22 +137,54 @@ int radar_check()
 	
 }
 
+///////////////////////////////////////////////////////////////
+// Brand new, thanks to Duncan
+// make bot turn reaching a given heading
+// 0/360 North, 90 East, 180 South, 270 West
+///////////////////////////////////////////////////////////////
+
 void SetHeading(int degrees)
 {
-	int tmp,dir=100;
-	tmp=read_compass();
-	NumOut(0,LCD_LINE1,tmp);
-	NumOut(0,LCD_LINE2,degrees);
+	int current,shortest,tmpheading,motordeg_A;
 	
-	while(tmp>(degrees+3) || tmp<(degrees-3))
+	// int pressed=0;
+	
+	int dir=100;
+	current=read_compass();
+	
+	tmpheading = degrees;
+	
+	shortest = tmpheading - current;
+	
+	if (shortest > 180)
 	{
-		RotateMotorEx(OUT_AC,30,4,dir,true,false);
-		Wait(100);
-		tmp=read_compass();
-		NumOut(0,LCD_LINE1,tmp);
-		if (tmp>180) dir=-100;
-		
+		shortest = shortest - 360;	
 	}
+	if (shortest < -180)
+	{
+		shortest = (shortest + 360) % 360;
+	}
+
+	motordeg_A = shortest * CM_PER_BOTTURNDEGREE * MOT_DEG_PER_CM;
+
+	if (motordeg_A<0) dir=-100;
+
+	RotateMotorEx(OUT_AC,50,motordeg_A,dir,true,true);
+	
+	ClearScreen();
+	
+	NumOut(0,LCD_LINE3,motordeg_A);
+	NumOut(0,LCD_LINE4,shortest);
+	NumOut(0,LCD_LINE5,read_compass());
+
+	//while(pressed <= 0){
+	//	pressed = ButtonPressed(BTN4, true);     //watch for the button press
+	//	Wait(100);
+	// }
+	// pressed=0;
+
+	
+
 }
 
 
@@ -178,9 +221,10 @@ void drive_backward()
 	
 }
 
-
+///////////////////////////////////////////
 // Turn to each side
-// and check distance
+// and check distance to next object
+///////////////////////////////////////////
 
 int check_sides()
 {
@@ -228,6 +272,11 @@ int check_sides()
     
     
 }
+
+////////////////////////////////////////////////////
+// show various informations like heading and
+// distance
+////////////////////////////////////////////////////
 
 task showinfo(){
 
@@ -293,15 +342,23 @@ task move(){
     }
 }
 
+task test_radar()
+{
+	int out;
+    out=radar_check();
+	BotTurnDegrees(out,CLOCKWISE);
+	
+}
+
 task main(){
 
 	int out;
 	SetSensorLowspeed(IN_4);
 	SetSensorLowspeed(IN_1);
-    out=radar_check();
-	BotTurnDegrees(out,CLOCKWISE);
-	Wait(10000);
 	
-	//Precedes(move,showinfo);
+	Wait(10000);
+	// 
+	
+	Precedes(move,showinfo);
 }
 
