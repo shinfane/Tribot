@@ -1,0 +1,35 @@
+#include "dist-nx-lib.nxc"
+
+// Device Address
+#define DIST_ADDR 0x02
+
+
+task main() {
+	SetSensorLowspeed(S2);
+	
+	unsigned int milivolt;
+	
+	Wait(200);
+	
+	DISTNxGP2YA21(S2, DIST_ADDR);
+	//DISTNxSendCommand(S1, DIST_CMD_ENERGIZED, DIST_ADDR);
+	
+	int count = 0;
+	int dist = 0;
+	while (count < 1000) {
+		
+		ClearScreen();
+		
+		milivolt=BatteryLevel();
+		//NumOut(0, LCD_LINE1, DISTNxReadValue(S2, DIST_REG_DIST_LSB, 2, DIST_ADDR), false);
+
+		dist=DISTNxDistance(S2, MS_ADDR_DISTNX);
+		NumOut(0,LCD_LINE1,dist,false);
+		NumOut(0,LCD_LINE2,milivolt,false);
+		
+		Wait(300);
+		count = count + 1;
+	}
+	DISTNxSendCommand(S2, DIST_CMD_DEENERGIZED, DIST_ADDR);
+}
+
