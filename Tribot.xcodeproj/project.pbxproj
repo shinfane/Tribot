@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		8626447116A9C03400773DB0 /* DIST-NX.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "DIST-NX.nxc"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		8646C45E169C429A00D75A0B /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		8646C461169C429A00D75A0B /* TriBot.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TriBot.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		86964E1216A015B30018A6BE /* Calibration.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Calibration.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
@@ -30,6 +31,7 @@
 			isa = PBXGroup;
 			children = (
 				8646C461169C429A00D75A0B /* TriBot.nxc */,
+				8626447116A9C03400773DB0 /* DIST-NX.nxc */,
 				86964E1216A015B30018A6BE /* Calibration.nxc */,
 				86D63681169CBF2A00295860 /* IRLinkBot.nxc */,
 			);
@@ -49,6 +51,19 @@
 /* End PBXGroup section */
 
 /* Begin PBXLegacyTarget section */
+		8626447216A9C1EC00773DB0 /* DIST-NX */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 8626447316A9C1EC00773DB0 /* Build configuration list for PBXLegacyTarget "DIST-NX" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			dependencies = (
+			);
+			name = "DIST-NX";
+			passBuildSettingsInEnvironment = 1;
+			productName = "DIST-NX";
+		};
 		8646C458169C424E00D75A0B /* Tribot */ = {
 			isa = PBXLegacyTarget;
 			buildArgumentsString = "$(ACTION)";
@@ -152,6 +167,7 @@
 				86844D59169F12960067AD6E /* test */,
 				86964E1816A01D940018A6BE /* Calibration */,
 				86D79CA116A8AA7E00909D94 /* IRLinkBot */,
+				8626447216A9C1EC00773DB0 /* DIST-NX */,
 			);
 		};
 /* End PBXProject section */
@@ -222,6 +238,36 @@
 			name = "NXT-MI1";
 		};
 		8626447016A96CFB00773DB0 /* NXT-MI1 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = "NXT-MI1";
+		};
+		8626447416A9C1EC00773DB0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		8626447516A9C1EC00773DB0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		8626447616A9C1EC00773DB0 /* NXT-MI1 */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				OTHER_CFLAGS = "";
@@ -404,6 +450,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		8626447316A9C1EC00773DB0 /* Build configuration list for PBXLegacyTarget "DIST-NX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8626447416A9C1EC00773DB0 /* Debug */,
+				8626447516A9C1EC00773DB0 /* Release */,
+				8626447616A9C1EC00773DB0 /* NXT-MI1 */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		8646C456169C424E00D75A0B /* Build configuration list for PBXProject "Tribot" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
