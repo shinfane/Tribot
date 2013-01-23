@@ -1,16 +1,28 @@
-#define IRPORT 3
+
 
 task main(){
 
-	
-	SetSensorLowspeed(S1);
+	int x;
+	SetSensorLowspeed(S4);
+	SetSensorLowspeed(S3);
+	HTRCXSetIRLinkPort(S4);
 	Wait(50);
-	PlayTone(1400, 100);
+	// PlayTone(1400, 100);
+	
 	while(true)
 	{
-		HTPFComboDirect(S1, PF_CHANNEL_1, PF_CMD_FWD, PF_CMD_REV); 
-		HTPFComboDirect(S1, PF_CHANNEL_2, PF_CMD_FWD, PF_CMD_FWD);
+		HTPFComboPWM(S4, PF_CHANNEL_1, PF_PWM_FWD2, PF_PWM_REV2); 
+		HTPFComboDirect(S4, PF_CHANNEL_2, PF_CMD_FWD, PF_CMD_FWD);
+		//HTRCXEnableOutput(RCX_OUT_A);
+		//HTRCXOnFwd(RCX_OUT_A);
+		//HTRCXPlayTone(440,100);
+		// Wait(5000);
+		//HTRCXOff(RCX_OUT_A);
+		//x = HTRCXBatteryLevel();
 		//HTPFComboPWM(S1,1,PF_PWM_FWD3,PF_PWM_FWD3);
+		//NumOut(0,LCD_LINE1,x,false);
+		Wait(1000);
+		ClearScreen();
 	}
 	
 	Wait(5000);

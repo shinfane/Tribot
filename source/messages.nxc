@@ -1,0 +1,15 @@
+
+#include "protocol.h"
+
+task main() {
+	
+	string m;
+	
+	slavecheck();
+
+	for(int i=0;i<1000;i++) {
+		m=NumToStr(i);
+		
+		sendtomaster(m);
+	}
+}

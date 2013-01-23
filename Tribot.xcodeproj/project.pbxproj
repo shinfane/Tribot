@@ -9,11 +9,12 @@
 /* Begin PBXFileReference section */
 		8626447116A9C03400773DB0 /* DIST-NX.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "DIST-NX.nxc"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		8646C45E169C429A00D75A0B /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
-		8646C461169C429A00D75A0B /* TriBot.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TriBot.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		8646C461169C429A00D75A0B /* TriBot.nxc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c; fileEncoding = 4; path = TriBot.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		86615A8116AF30F200ED8BA9 /* messages.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = messages.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		867690F016AF3A3B002D780F /* protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = protocol.h; path = source/protocol.h; sourceTree = "<group>"; };
 		86964E1216A015B30018A6BE /* Calibration.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Calibration.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		86D63681169CBF2A00295860 /* IRLinkBot.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IRLinkBot.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
-		86D63686169D834400295860 /* protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = protocol.h; sourceTree = "<group>"; };
-		86D63687169D83E100295860 /* master.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = master.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		86D63687169D83E100295860 /* master.nxc */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; path = master.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		86D63688169D842300295860 /* slave.nxc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = slave.nxc; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 /* End PBXFileReference section */
 
@@ -21,6 +22,7 @@
 		8646C451169C424E00D75A0B = {
 			isa = PBXGroup;
 			children = (
+				867690F016AF3A3B002D780F /* protocol.h */,
 				86D63685169D831B00295860 /* libs */,
 				8646C45E169C429A00D75A0B /* Makefile */,
 				8646C45F169C429A00D75A0B /* source */,
@@ -31,6 +33,7 @@
 			isa = PBXGroup;
 			children = (
 				8646C461169C429A00D75A0B /* TriBot.nxc */,
+				86615A8116AF30F200ED8BA9 /* messages.nxc */,
 				8626447116A9C03400773DB0 /* DIST-NX.nxc */,
 				86964E1216A015B30018A6BE /* Calibration.nxc */,
 				86D63681169CBF2A00295860 /* IRLinkBot.nxc */,
@@ -41,7 +44,6 @@
 		86D63685169D831B00295860 /* libs */ = {
 			isa = PBXGroup;
 			children = (
-				86D63686169D834400295860 /* protocol.h */,
 				86D63687169D83E100295860 /* master.nxc */,
 				86D63688169D842300295860 /* slave.nxc */,
 			);
@@ -76,6 +78,19 @@
 			name = Tribot;
 			passBuildSettingsInEnvironment = 1;
 			productName = Tribot;
+		};
+		86615A7B16AF30CF00ED8BA9 /* messages */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 86615A7F16AF30CF00ED8BA9 /* Build configuration list for PBXLegacyTarget "messages" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			dependencies = (
+			);
+			name = messages;
+			passBuildSettingsInEnvironment = 1;
+			productName = messages;
 		};
 		86844D55169F10820067AD6E /* download */ = {
 			isa = PBXLegacyTarget;
@@ -168,6 +183,7 @@
 				86964E1816A01D940018A6BE /* Calibration */,
 				86D79CA116A8AA7E00909D94 /* IRLinkBot */,
 				8626447216A9C1EC00773DB0 /* DIST-NX */,
+				86615A7B16AF30CF00ED8BA9 /* messages */,
 			);
 		};
 /* End PBXProject section */
@@ -342,6 +358,36 @@
 			};
 			name = Release;
 		};
+		86615A7C16AF30CF00ED8BA9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		86615A7D16AF30CF00ED8BA9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		86615A7E16AF30CF00ED8BA9 /* NXT-MI1 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = "NXT-MI1";
+		};
 		86844D57169F10820067AD6E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -458,6 +504,7 @@
 				8626447616A9C1EC00773DB0 /* NXT-MI1 */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8646C456169C424E00D75A0B /* Build configuration list for PBXProject "Tribot" */ = {
 			isa = XCConfigurationList;
@@ -475,6 +522,16 @@
 				8646C45C169C424E00D75A0B /* Debug */,
 				8646C45D169C424E00D75A0B /* Release */,
 				8626446B16A96CFB00773DB0 /* NXT-MI1 */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		86615A7F16AF30CF00ED8BA9 /* Build configuration list for PBXLegacyTarget "messages" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				86615A7C16AF30CF00ED8BA9 /* Debug */,
+				86615A7D16AF30CF00ED8BA9 /* Release */,
+				86615A7E16AF30CF00ED8BA9 /* NXT-MI1 */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -6,7 +6,7 @@ NXTCOM=/Users/micha/bin/nxtcom
 # Use -EF to specify we are using enhanced firmware.
 # Use -d to specify we want to download to the brick.
 
-OPTIONS= -I=../$(SOURCE)/ 
+OPTIONS= -I=../$(SOURCE)/
 
 # Program settings
 #INTERFACE=BTH::NXT::00:16:53:17:BA:E0::1
