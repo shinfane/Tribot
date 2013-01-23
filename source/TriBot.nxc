@@ -42,6 +42,8 @@ int heading=0;
 int escape_heading, travel_distance=0;
 int RadarResult[RADARINDEX];
 
+unsigned int milivolt;
+
 
 // File handling stuff
 
@@ -101,6 +103,7 @@ int read_compass()
 	heading=i*360/255;
 	Wait(20);
 	return heading;
+	
 }
 
 
@@ -135,6 +138,7 @@ int radar_check()
 	
 	return escape_heading;
 	
+	
 }
 
 ///////////////////////////////////////////////////////////////
@@ -155,6 +159,7 @@ void SetHeading(int degrees)
 	tmpheading = degrees;
 	
 	shortest = tmpheading - current;
+	
 	
 	if (shortest > 180)
 	{
@@ -279,12 +284,15 @@ int check_sides()
 ////////////////////////////////////////////////////
 
 task showinfo(){
-
+	
 	while(true) {
 
 		// ClearScreen();
 		
 		travel_distance = MotorRotationCount(OUT_C) * CM_PER_MOT_DEGREE ;
+		milivolt=BatteryLevel();
+		TextOut(0,LCD_LINE4,"Power:");
+		NumOut(0,LCD_LINE4,milivolt);
 		TextOut(0,LCD_LINE5,"HEADING:");
 		NumOut(50,LCD_LINE5, heading);
 		TextOut(0,LCD_LINE6,"DIST:");
@@ -356,7 +364,6 @@ task main(){
 	SetSensorLowspeed(IN_4);
 	SetSensorLowspeed(IN_1);
 	
-	Wait(10000);
 	// 
 	
 	Precedes(move,showinfo);
