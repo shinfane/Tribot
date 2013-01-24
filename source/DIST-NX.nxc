@@ -20,26 +20,30 @@ void MovePanel()
 
 // Need to fix the timing
 
+
 void PFDrive(int miliseconds,bool fwd) {
 
+	int i;
+	i=miliseconds/40;
 	if (fwd) {
 		
 		HTPFComboPWM(IRLINK, PF_CHANNEL_1, PF_PWM_FWD7, PF_PWM_REV7);		
 	} else {
 		HTPFComboPWM(IRLINK, PF_CHANNEL_1, PF_PWM_REV7, PF_PWM_FWD7);				
 	}
-	
-	Wait( miliseconds);
+	HTPFRepeat(IRLINK, i, 40);
+	Wait(miliseconds);
 	HTPFComboDirect(IRLINK, PF_CHANNEL_1, PF_CMD_STOP, PF_CMD_STOP); 
 	
 }
 
 
-// need to fix the timing
+// CHANGED Fixed the timing by using the HTPFRepeat
 
 void PFTurn(int miliseconds,bool right) {
 
 	int i=0;
+	i=miliseconds/40;
 	
 	if (right) {
 		
@@ -50,7 +54,7 @@ void PFTurn(int miliseconds,bool right) {
 		HTPFComboPWM(IRLINK, PF_CHANNEL_1, PF_PWM_REV7, PF_PWM_REV7);		
 
 	}
-	
+	HTPFRepeat(IRLINK, i, 40);
 	Wait(miliseconds);
 	HTPFComboDirect(IRLINK, PF_CHANNEL_1, PF_CMD_STOP, PF_CMD_STOP); 
 	
@@ -67,7 +71,6 @@ int IRDriveFWD(int keepout) {
 		ClearScreen();
 		HTPFComboPWM(IRLINK, PF_CHANNEL_1, PF_PWM_FWD5, PF_PWM_REV5);
 		i = DISTNxDistance(DIST, MS_ADDR_DISTNX);
-		NumOut(0,LCD_LINE1,i,false);
 		Wait(50);
 	}
 	
@@ -92,7 +95,6 @@ int USDriveREV(int keepout) {
 		ClearScreen();
 		HTPFComboPWM(IRLINK, PF_CHANNEL_1, PF_PWM_REV5, PF_PWM_FWD5);
 		i = SensorUS(S3);
-		NumOut(0,LCD_LINE2,i,false);
 		Wait(50);
 	}
 	
@@ -119,17 +121,17 @@ task main() {
 	/////////////////////////////////////////
 	
 	DISTNxGP2YA21(S2, DIST_ADDR);
-	//IRDriveFWD(40);
-	//USDriveREV(40);
 	//PFDrive(2000,true);
 	//PFDrive(2000,false);
 	PlayTone(1000,200);
 	Wait(2000);
 	
-	PFTurn(30000,true);
-	PFTurn(30000,false);
-	
-	
+	//PFDrive(2000,true);
+	PlayTone(1000,200);
+	USDriveREV(30);
+	Wait(2000);
+	IRDriveFWD(30);
+	PlayTone(1000,200);
 	
 }
 
