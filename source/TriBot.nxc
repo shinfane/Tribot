@@ -34,8 +34,18 @@
 #define LEFT 0
 #define FILENAME "track.txt"
 
+// prototype 
+
+task move();
+task test_radar();
+
 // decided to use mutexes, just to make sure that
 //  tasks do not impact each other
+
+struct path {
+	int course;
+	int distance;
+} ;
 
 mutex MotorMutex_B;
 int heading=0;
@@ -70,14 +80,14 @@ void BotTurnDegrees(int degrees, bool turndir)
 
 	motordeg_A = degrees * CM_PER_BOTTURNDEGREE * MOT_DEG_PER_CM;
 
-	TextOut(0,LCD_LINE1,"StartH:");
-	TextOut(0,LCD_LINE2,"MotDeg:");
-	TextOut(0,LCD_LINE3,"Turn:");
-	TextOut(0,LCD_LINE4,"Dir:");
-	NumOut(40,LCD_LINE1,heading);
-	NumOut(40,LCD_LINE2,motordeg_A);
-	NumOut(40,LCD_LINE3,degrees);
-	NumOut(40,LCD_LINE4,dir);
+	// TextOut(0,LCD_LINE1,"StartH:");
+	// TextOut(0,LCD_LINE2,"MotDeg:");
+	// TextOut(0,LCD_LINE3,"Turn:");
+	// TextOut(0,LCD_LINE4,"Dir:");
+	// NumOut(40,LCD_LINE1,heading);
+	// NumOut(40,LCD_LINE2,motordeg_A);
+	// NumOut(40,LCD_LINE3,degrees);
+	// NumOut(40,LCD_LINE4,dir);
 
 	//	while(pressed <= 0){
 	//		pressed = ButtonPressed(BTN4, true);     //watch for the button press
@@ -86,7 +96,7 @@ void BotTurnDegrees(int degrees, bool turndir)
 
 	RotateMotorEx(OUT_AC,50,motordeg_A,dir,true,true);
 	
-	Wait(25000);
+	Wait(1000);
 }
 
 
@@ -130,7 +140,9 @@ int radar_check()
 			NumOut(50,LCD_LINE3,escape_heading);
 		
 
-		}
+			} else {
+				PlayTone((1500-RadarResult[i-1]),100);
+			}
 		Wait(200);
 
 	}
@@ -147,8 +159,8 @@ int radar_check()
 // 0/360 North, 90 East, 180 South, 270 West
 ///////////////////////////////////////////////////////////////
 
-void SetHeading(int degrees)
-{
+void SetHeading(int degrees) {
+	
 	int current,shortest,tmpheading,motordeg_A;
 	
 	// int pressed=0;
@@ -193,8 +205,8 @@ void SetHeading(int degrees)
 }
 
 
-void drive_backward()
-{
+void drive_backward() {
+	
 	int backsignal;
 	string tmp;
 
@@ -231,8 +243,8 @@ void drive_backward()
 // and check distance to next object
 ///////////////////////////////////////////
 
-int check_sides()
-{
+int check_sides() {
+	
     int left_signal;
     int right_signal;
 	string tmp;
@@ -283,7 +295,7 @@ int check_sides()
 // distance
 ////////////////////////////////////////////////////
 
-task showinfo(){
+task showinfo() {
 	
 	while(true) {
 
@@ -305,9 +317,13 @@ task showinfo(){
 }
 
 
+// CHANGED Task exits to test_radar as soon as it sees an obstacle
+ 
+
 task move(){
     //    SetSensorLight(IN_3);
 	
+	int out;
 	 ResetRotationCount(OUT_AC);
 	 ResetRotationCount(OUT_B);
 	
@@ -320,33 +336,30 @@ task move(){
 		
 		
         Off(OUT_AC);
-					
+		PlayFile("ping.rso");			
 		heading=read_compass();
 		
-		
 		drive_backward();
+		ExitTo(test_radar);
+		
        
-        if (check_sides()==LEFT)
-        {
-         //   OnFwd(OUT_A,50);
-         //   OnRev(OUT_C,50);
-			OnFwdSync(OUT_AC,50,-100);
-            
-        } 
-        else
-        {
-         //   OnFwd(OUT_C,50);
-         //   OnRev(OUT_A,50);
-
-			OnFwdSync(OUT_AC,50,100);
-
-        }
-        
-        Wait(750);
-        
-        Off(OUT_AC);	
-
-        Wait(2000);
+			//         if (check_sides()==LEFT)
+			//         {
+			// OnFwdSync(OUT_AC,50,-100);
+			//             
+			//         } 
+			//         else
+			//         {
+			// 
+			// OnFwdSync(OUT_AC,50,100);
+			// 
+			//         }
+			//         
+			//         Wait(750);
+			//         
+			//         Off(OUT_AC);	
+			// 
+		
     }
 }
 
@@ -355,6 +368,7 @@ task test_radar()
 	int out;
     out=radar_check();
 	BotTurnDegrees(out,CLOCKWISE);
+	ExitTo(move);
 	
 }
 
@@ -363,7 +377,8 @@ task main(){
 	int out;
 	SetSensorLowspeed(IN_4);
 	SetSensorLowspeed(IN_1);
-	
+	PlayTone(1000,100);
+	Wait(2000);
 	// 
 	
 	Precedes(move,showinfo);

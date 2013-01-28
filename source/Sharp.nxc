@@ -1,0 +1,19 @@
+int value;
+
+task main()
+{
+	
+  SetSensor(SENSOR_2,SENSOR_LIGHT); // Active mode: starts charging sensor
+  Wait(100); // Wait for full charge on startup
+
+  until (false)
+  {
+    SetSensor(SENSOR_2,SENSOR_TOUCH); // Passive mode: starts measure
+    Wait(6); // Wait for GP2D12 conversion time (50ms)
+    SetSensorMode(SENSOR_2,SENSOR_MODE_RAW);
+    value=SENSOR_2; // reads and display value
+	NumOut(0, LCD_LINE1, value);
+    SetSensor(SENSOR_2,SENSOR_LIGHT); // Recharge sensor
+    Wait(40); // for 250 ms
+  }
+}
