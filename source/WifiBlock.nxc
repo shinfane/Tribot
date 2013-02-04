@@ -1,0 +1,938 @@
+/*********************************************
+      NXC WifiBlock Libraries
+      
+      Author: Philippe Capdepuy
+      
+      (C) 2012 Generation Robots
+**********************************************/
+
+#ifndef INCLUDE_WIFIBLOCK
+#define INCLUDE_WIFIBLOCK
+
+//~ #define DEBUG
+
+//int errorcount;
+
+/****************************************
+      Wifiblock I2C Communication
+****************************************/
+
+#define WB_I2C_PORT_WRITE     0x20   // Port is actually 0x10, <<1 because of I2C R/W bit
+#define WB_I2C_PORT_READ      0x21
+
+#define WB_WRITE_NORMAL       0x01
+#define WB_WRITE_MASK         0x02
+
+#define WB_I2C_MAX_READ	      15
+#define WB_I2C_MAX_WRITE			12
+
+// Initialize sensor port for I2C communication (must be called at the beginning of the program)
+void wb_initPort(int port) {
+  SetSensorType(port, SENSOR_TYPE_LOWSPEED);
+  SetSensorMode(port, SENSOR_MODE_RAW);
+	ResetSensor(port);
+  Wait(500);
+}
+
+// Error function that displays an error message in case something goes wrong
+void wb_error(string message) {
+  TextOut(0,LCD_LINE1,"WIFIBLOCK ERROR            ");
+  TextOut(0,LCD_LINE2,"                           ");
+  TextOut(0,LCD_LINE2,message);
+  PlayTone(440, 1000);  
+  Wait(5000);
+}
+
+// Write bytes on I2C port
+void wb_writeBytesBasic(int port,byte & data[]) {
+  while (I2CCheckStatus(port) == STAT_COMM_PENDING) Wait(0);
+  I2CWrite(port,0,data);
+}
+
+// Write one byte into WifiBlock at specified address
+void wb_writeByte(int port,int address,byte _d) {
+  byte data[5];
+  data[0]=WB_I2C_PORT_WRITE;
+  data[1]=WB_WRITE_NORMAL;
+  data[2]=(address>>8)&0xFF;
+  data[3]=(address)&0xFF;
+  data[4]=_d;
+  while (I2CCheckStatus(port) == STAT_COMM_PENDING) Wait(0);
+  I2CWrite(port,0,data);
+}
+
+// Masked Write of one byte into WifiBlock at specified address
+// Bits at 1 in mask will be updated to corresponding bits in val
+void wb_writeMask(int port,int address,byte mask,byte val) {
+  byte data[]={WB_I2C_PORT_WRITE,WB_WRITE_MASK,0,0,0,0};
+  data[2]=(address>>8)&0xFF;
+  data[3]=(address)&0xFF;
+  data[4]=mask;
+  data[5]=val;
+  while (I2CCheckStatus(port) == STAT_COMM_PENDING) Wait(0);
+  I2CWrite(port,0,data);
+}
+
+// Write an array of bytes into WifiBlock at specified address
+// data size must be <= WB_I2C_MAX_WRITE
+void wb_writeBytes(int port,int address,byte & _data[]) {
+  byte data[];
+  int _size=ArrayLen(_data);
+	if (_size>WB_I2C_MAX_WRITE) {
+		wb_error("I2CWriteSize Exceeded");
+		return;
+	}
+  int size=_size+4;
+  ArrayInit(data,0,size);
+  data[0]=WB_I2C_PORT_WRITE;
+  data[1]=WB_WRITE_NORMAL;
+  data[2]=(address>>8)&0xFF;
+  data[3]=(address)&0xFF;
+  for (int i=0;i<_size;i++) {
+    data[4+i]=_data[i];    
+  }
+  while (I2CCheckStatus(port) == STAT_COMM_PENDING) Wait(0);
+  I2CWrite(port,0,data);
+}
+
+// Write an array of bytes of any size into the WifiBlock at a specified address
+void wb_writeBytesLong(int port,int address,byte & _data[]) {
+  byte data[];
+  byte lastdata[];
+  int totalsize=ArrayLen(_data);
+  int leftsize=totalsize;
+  int _pointer=0;
+  ArrayInit(data,0,4+WB_I2C_MAX_WRITE);	
+  data[0]=WB_I2C_PORT_WRITE;
+  data[1]=WB_WRITE_NORMAL;
+  while (leftsize>=WB_I2C_MAX_WRITE) {		
+    data[2]=(address>>8)&0xFF;
+    data[3]=(address)&0xFF;
+    for (int i=0;i<WB_I2C_MAX_WRITE;i++) {
+      data[4+i]=_data[_pointer+i];    
+    }
+    while (I2CCheckStatus(port) == STAT_COMM_PENDING) Wait(0);
+    I2CWrite(port,0,data);
+    _pointer+=WB_I2C_MAX_WRITE;
+    address+=WB_I2C_MAX_WRITE;
+    leftsize-=WB_I2C_MAX_WRITE;		
+  }
+  if (leftsize>0) {
+    int tmpsize=4+leftsize;
+    ArrayInit(lastdata,0,tmpsize);	
+    lastdata[0]=WB_I2C_PORT_WRITE;
+    lastdata[1]=WB_WRITE_NORMAL;
+    lastdata[2]=(address>>8)&0xFF;
+    lastdata[3]=(address)&0xFF;
+    for (int i=0;i<leftsize;i++) {
+      lastdata[4+i]=_data[_pointer+i];    
+    }
+    while (I2CCheckStatus(port) == STAT_COMM_PENDING) Wait(0);
+    I2CWrite(port,0,lastdata);
+  }
+}
+
+// Read a single byte from the WifiBlock at a specified address
+byte wb_readByte(int port,int address) {
+  byte data[]={WB_I2C_PORT_WRITE,WB_WRITE_NORMAL,0x01,0x00,0,0,1};
+  data[4]=(address>>8)&0xFF;
+  data[5]=(address)&0xFF;	
+  byte retsize=1;
+  byte ret[1];
+  while (I2CCheckStatus(port) == STAT_COMM_PENDING) Wait(0);
+  I2CBytes(port,data,retsize,ret);  
+  return ret[0];
+}
+
+// Read an array of bytes from the WifiBlock at a specified address
+// Return size must be <= WB_I2C_MAX_READ
+void wb_readBytes(int port,int address,byte & returndata[],byte returnsize) {
+	if (returnsize>WB_I2C_MAX_READ) {
+		wb_error("I2CReadSize Exceeded");
+		return;	
+	}
+  byte data[]={WB_I2C_PORT_WRITE,WB_WRITE_NORMAL,0x01,0x00,0,0,0};
+  data[4]=(address>>8)&0xFF;
+  data[5]=(address)&0xFF;
+  data[6]=returnsize;
+  while (I2CCheckStatus(port) == STAT_COMM_PENDING) Wait(0);
+  I2CBytes(port,data,returnsize,returndata);  
+}
+
+// Read an array of bytes from the WifiBlock at a specified address
+void wb_readBytesLong(int port,int address,byte & returndata[],int returnsize) {
+	byte returnTemp[];
+	ArrayInit(returnTemp, 0, WB_I2C_MAX_READ);
+	
+	ArrayInit(returndata, 0, returnsize);
+	int index = 0;
+	
+	int remainingSize =  returnsize;
+	int count = 0;
+	while (remainingSize>WB_I2C_MAX_READ) {
+		wb_readBytes(port,address,returnTemp,WB_I2C_MAX_READ);
+		for(int i = 0; i < WB_I2C_MAX_READ; i++){
+			returndata[index] =returnTemp[i];
+			index++;
+		}  
+		
+		address += WB_I2C_MAX_READ;
+		remainingSize-=WB_I2C_MAX_READ;
+
+	}
+	
+	if(remainingSize > 0){
+		
+		wb_readBytes(port,address,returnTemp,remainingSize);
+		for(int i = 0; i < remainingSize; i++){
+			returndata[index] =returnTemp[i];
+			index++;
+		}  
+	}
+}
+
+// Read an array of bytes from the WifiBlock at a specified address and returns it as a string
+// Return size must be <= WB_I2C_MAX_READ
+string wb_readString(int port,int address,byte size) {
+  byte data[];
+  ArrayInit(data,0,size);
+  wb_readBytes(port,address,data,size);
+  string s=ByteArrayToStr(data);
+  return s;
+}
+
+// Write a string of any size to the WifiBlock at a specified address
+void wb_writeStringLong(int port,int address,string & s) {
+  int size=StrLen(s)+1;
+  byte _data[];
+  StrToByteArray(s,_data);
+  byte data[];
+  ArrayInit(data,0,size);
+  for (int i=0;i<(size-1);i++) {
+    data[i]=_data[i];
+  }
+  data[size-1]=0;
+  wb_writeBytesLong(port,address,data);
+}
+
+// Write a string of any size to the WifiBlock at a specified address
+// Uses WriteBytes or WriteBytesLong depending on the size of the string
+void wb_writeString(int port,int address,string & s) {
+  int size=StrLen(s)+1;
+  if (size>WB_I2C_MAX_WRITE) {
+    wb_writeStringLong(port,address,s);
+  }
+  else {
+    byte _data[];
+    StrToByteArray(s,_data);
+    byte data[];
+    ArrayInit(data,0,size);
+    for (int i=0;i<(size-1);i++) {
+      data[i]=_data[i];
+    }
+    data[size-1]=0;
+    wb_writeBytes(port,address,data);
+  }
+}
+
+
+
+/****************************************
+      Wifiblock Basic Functionalities
+****************************************/
+
+#define WB_SECURITY_OPEN     	0
+#define WB_SECURITY_WEP     	1
+#define WB_SECURITY_WPA     	2
+#define WB_SECURITY_WPA2     	3
+
+// Get WifiBlock status
+byte wb_getStatus(int port) {
+  byte status=wb_readByte(port,0x0200);
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE1,"    WB Status      ");
+  NumOut(0,LCD_LINE1,status);
+  #endif
+  return status;
+}
+
+// Dump a block of WifiBlock register memory into a file
+// NXC Firmware needed for proper file write
+void wb_dumpMemory(int port,string filename,int begin,int size) {
+  int f;
+  DeleteFile(filename);
+  CreateFile(filename,size,f);
+  TextOut(0, LCD_LINE1,"Dumping Memory");
+  TextOut(0, LCD_LINE2,filename);
+
+  byte data[WB_I2C_MAX_READ];
+  for (int i=0;i<size;i+=WB_I2C_MAX_READ) {
+    TextOut(0, LCD_LINE3,"           ");
+    NumOut(0, LCD_LINE3,i);
+    int ws=WB_I2C_MAX_READ;
+    if ((size-i)<ws) ws=size-i;
+    wb_readBytes(port,begin+i,data,ws);
+    WriteBytes(f,data,ws);
+  }
+  CloseFile(f);
+}
+
+// Reset the WifiBlock
+void wb_reset(int port) {
+  wb_writeMask(port,0x000E,0x03,0x03);
+}
+
+// Activate/Deactivate RS232
+void wb_enableRS232(int port,bool on) {
+	if (on) wb_writeMask(port,0x0200,32,0);
+	else wb_writeMask(port,0x0200,32,32);
+  
+}
+
+// Get the WifiBlock firmware version
+string wb_getVersion(int port) {
+  return wb_readString(port,0x0000,4);
+}
+
+// Get the WifiBlock product identification
+string wb_getProductId(int port) {
+  return wb_readString(port,0x0004,4);
+}
+
+// Get the WifiBlock MAC address
+// Only valid after a successfull Wifi connection
+string wb_getMAC(int port) {
+  return wb_readString(port,0x0273,12);
+}
+
+// Get the WifiBlock Sensor Type
+string wb_getSensorType(int port) {
+  return wb_readString(port,0x0008,4);
+}
+
+// Set the Wifi connection parameters (ssid,security,passphrase,IP address,netmask,gateway)
+void wb_setConnectionParameters(int port,string ssid,byte security,string pass,byte ip1,byte ip2,byte ip3,byte ip4,byte m1,byte m2,byte m3,byte m4,byte g1,byte g2,byte g3,byte g4) {
+  byte ipconfig[12];
+  ipconfig[0]=ip1;
+  ipconfig[1]=ip2;
+  ipconfig[2]=ip3;
+  ipconfig[3]=ip4;
+  ipconfig[4]=m1;
+  ipconfig[5]=m2;
+  ipconfig[6]=m3;
+  ipconfig[7]=m4;
+  ipconfig[8]=g1;
+  ipconfig[9]=g2;
+  ipconfig[10]=g3;
+  ipconfig[11]=g4;
+  wb_writeBytes(port,0x0222,ipconfig);  
+  wb_writeByte(port,0x022E,security);
+  wb_writeStringLong(port,0x0202,ssid);  
+  wb_writeStringLong(port,0x022F,pass);  
+}
+
+// Disable the Wifi connection
+void wb_disable(int port) {
+  wb_writeMask(port,0x0200,1,0);
+}
+
+// Enable the Wifi device and try to connect with saved configuration if any
+void wb_enable(int port) {
+  wb_writeMask(port,0x0200,1,1);
+}
+
+// Get number of retries
+byte wb_getWifiRetry(int port) {
+  return wb_readByte(port,0x0022);
+}
+
+// Set reconnection flag
+void wb_setReconnect(int port,bool reconnect) {
+	if (reconnect) wb_writeMask(port,0x0200,0x40,0x40);
+  else wb_writeMask(port,0x0200,0x40,0);
+}
+
+// Erase previously saved Wifi configuration
+void wb_eraseConfig(int port) {
+  wb_writeMask(port,0x0200,0x80,0x80);
+	Wait(100);
+}
+
+// Save current Wifi configuration
+// Must be called immediately after setting the configuration, before connecting
+void wb_saveConfig(int port) {
+  wb_writeMask(port,0x0200,2,2);
+}
+
+// Reconnect WifiBlock with new Wifi settings, optionally save the configuration
+void wb_connect(int port,string ssid,byte security,string pass,byte ip1,byte ip2,byte ip3,byte ip4,byte m1,byte m2,byte m3,byte m4,byte g1,byte g2,byte g3,byte g4,bool save) {
+	#ifdef DEBUG
+  TextOut(0,LCD_LINE1," Connecting     ");
+  #endif
+  wb_disable(port);
+	Wait(1000);
+	#ifdef DEBUG
+  TextOut(0,LCD_LINE1," Setting Wifi config");
+  TextOut(0,LCD_LINE2,"                                        ");
+  TextOut(0,LCD_LINE2,ssid);
+  #endif
+  wb_setConnectionParameters(port,ssid,security,pass,ip1,ip2,ip3,ip4,m1,m2,m3,m4,g1,g2,g3,g4);
+	//~ Wait(2000);
+	if (save) {
+		#ifdef DEBUG
+		TextOut(0,LCD_LINE1," Saving confrfg");
+		#endif
+		wb_saveConfig(port);
+		Wait(1000);
+	}
+  wb_enable(port);
+}
+
+// Wait for the WifiBlock to get Wifi connectivity
+bool wb_waitConnect(int port) {
+	int i=0;
+	string s;
+  byte status;
+	do {
+		status=wb_getStatus(port);
+		byte nretry=wb_getWifiRetry(port);
+		TextOut(0,LCD_LINE2,"      NRetry");
+		NumOut(0,LCD_LINE2,nretry);
+		
+		if (i==0) s="Connecting            ";
+		if (i==1) s="Connecting.           ";
+		if (i==2) s="Connecting..          ";
+		if (i==3) s="Connecting...         ";
+		TextOut(0,LCD_LINE3,s);
+    Wait(2000);
+		i=(i+1)%4;		
+  }
+  while ((status&16)==0 && (status&1)!=0 );
+  if ((status&16)==0) {    
+    TextOut(0,LCD_LINE3,"Failure            ");
+    return false;
+  }
+  else {
+    TextOut(0,LCD_LINE3,"Connected            ");
+    return true;
+  }
+}
+
+
+
+// Wait for the WifiBlock to get Wifi connectivity
+bool wb_isConnected(int port) {
+  byte status=wb_getStatus(port);
+  return ((status&16)!=0);
+}
+
+// Get the WifiBlock battery level (tenth of volts)
+byte wb_getBattery(int port) {
+  return wb_readByte(port,0x000C);
+}
+
+
+// Get the WifiBlock HTTP Response code
+string wb_getHTTPResponse(int port) {
+  return wb_readString(port,0x001F,3);
+}
+
+
+void wb_getIP(int port,byte & data[]) {
+  wb_readBytes(port,0x0222,data,4);
+}
+
+void wb_getNetmask(int port,byte & data[]) {
+  wb_readBytes(port,0x0226,data,4);
+}
+
+void wb_getGateway(int port,byte & data[]) {
+  wb_readBytes(port,0x022A,data,4);
+}
+
+void wb_getDNS(int port,byte & data[]) {
+  wb_readBytes(port,0x0023,data,4);
+}
+
+
+
+/****************************************
+          UDP Communication
+****************************************/
+
+#define WB_UDP_MAX_READ       32
+#define WB_UDP_MAX_WRITE      32
+
+// Get UDP post status
+byte wb_udp_getStatus(int port) {
+  byte status=wb_readByte(port,0x3000);
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE1,"    UDP Status      ");
+  NumOut(0,LCD_LINE1,status);
+  #endif
+  return status;
+}
+
+// Close UDP port
+void wb_udp_close(int port) {
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE2,"UDP Close            ");
+  #endif
+  wb_writeMask(port,0x3000,1,0); // Close UDP Port
+  while ((wb_udp_getStatus(port)&1)!=0) Wait(100); // Wait for UDP Port to be closed
+}
+
+// Open UDP Port (close it before if already opened)
+void wb_udp_open(int port) {
+	if ((wb_udp_getStatus(port)&1)==1) wb_udp_close(port); // If UDP Port already open, close it
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE2,"UDP Open            ");
+  #endif
+  wb_writeMask(port,0x3000,1,1); // Open UDP Port
+  while ((wb_udp_getStatus(port)&1)!=1) Wait(100); // Wait for UDP Port to be ready
+}
+
+// Set UDP Destination parameters (IP, source port, destination port)
+// UDP port will be closed and must be reopened afterwards
+void wb_udp_setDestination(int port,byte ip1,byte ip2,byte ip3,byte ip4,int srcport,int dstport) {
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE2,"UDP Set Destination   ");
+  #endif
+	wb_udp_close(port); // Close before setting parameters
+  byte data[8];
+  data[0]=ip1;
+  data[1]=ip2;
+  data[2]=ip3;
+  data[3]=ip4;
+  data[4]=(dstport>>8)&0xFF;
+  data[5]=(dstport)&0xFF;
+  data[6]=(srcport>>8)&0xFF;
+  data[7]=(srcport)&0xFF;
+  wb_writeBytes(port,0x3001,data);  // Write IP, Dst port and Src port
+}
+
+// Send a UDP datagram, data size must be <= WB_UDP_MAX_WRITE
+void wb_udp_send(int port,byte & data[]) {
+	if (ArrayLen(data)>WB_UDP_MAX_WRITE) {
+		wb_error("UDPWriteSize Exceeded");
+		return;
+	}
+	
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE2,"UDPSend-WaitReadyDone            ");
+  #endif  
+  while ((wb_udp_getStatus(port)&5)!=5) Wait(10); // Wait Ready & Send Done
+  
+  /*#ifdef DEBUG
+	if ((wb_udp_getStatus(port)&0x80)!=0) { // Error
+		errorcount++;
+	}
+  #endif  */
+	
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE2,"UDPSend-Sending            ");
+  #endif  
+
+  byte length=ArrayLen(data);
+  wb_writeByte(port,0x3009,length); // Write TX Length
+  wb_writeBytesLong(port,0x300A,data); // Write TX Data
+	
+  wb_writeMask(port,0x3000,4,0); // Reset Send done
+  wb_writeMask(port,0x3000,2,2); // Send data
+  
+}
+
+// Receive a UDP datagram, return datagram size or -1 if no data available
+int wb_udp_receive(int port,byte & data[]) {
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE2,"UDPRecv-WaitReady          ");
+  #endif
+  byte status=wb_udp_getStatus(port);
+  if ((status&0x8)!=0) { // RX Data Ready?
+		while ((wb_udp_getStatus(port)&5)!=5) Wait(10); // Wait Port Ready and Send Done
+
+    byte sizeread=wb_readByte(port,0x302A); // Read RX Length
+    if (sizeread>0) wb_readBytes(port,0x302B,data,sizeread); // Read RX Data
+    wb_writeMask(port,0x3000,16,16); // Set RX Data Read
+    return sizeread;
+  }
+  return -1;
+}
+
+
+/****************************************
+          TCP Communication
+****************************************/
+
+#define WB_TCP_MAX_READ       32
+#define WB_TCP_MAX_WRITE      32
+
+// Get TCP port status
+byte wb_tcp_getStatus(int port) {
+  byte status=wb_readByte(port,0x4000);
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE1,"    TCP Status      ");
+  NumOut(0,LCD_LINE1,status);
+  #endif
+  return status;
+}
+
+// Set TCP destination parameters (IP address, destination port)
+void wb_tcp_setDestination(int port,byte ip1,byte ip2,byte ip3,byte ip4,int dstport) {
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE2,"TCP SetDestination         ");
+  #endif
+  while ((wb_tcp_getStatus(port)&0x1)==0) Wait(100); // Wait Port Ready
+  byte data[6];
+  data[0]=ip1;
+  data[1]=ip2;
+  data[2]=ip3;
+  data[3]=ip4;
+  data[4]=(dstport>>8)&0xFF;
+  data[5]=(dstport)&0xFF;
+  wb_writeBytes(port,0x4001,data); // Write IP and dst port
+}
+
+// Send a TCP packet without return data
+// Data size must be <= WB_TCP_MAX_WRITE
+void wb_tcp_send(int port,byte & data[]) {
+	if (ArrayLen(data)>WB_TCP_MAX_WRITE) {
+		wb_error("TCPWriteSize Exceeded");
+		return;
+	}
+	
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE2,"TCP Send         ");
+  #endif
+  while ((wb_tcp_getStatus(port)&0x1)==0) Wait(100); // Wait Port Ready
+  byte length=ArrayLen(data);
+  wb_writeByte(port,0x4007,length); // Set TX Length
+  wb_writeBytesLong(port,0x4008,data); // Set TX Data
+  wb_writeMask(port,0x4000,4,0);  // Reset Request Done
+  wb_writeMask(port,0x4000,2,2);  // Send Request
+   #ifdef DEBUG
+  TextOut(0,LCD_LINE2,"TCP WaitDone");
+  #endif
+	while ((wb_tcp_getStatus(port)&0x4)==0) Wait(100); // Wait Request Done 
+
+  if ((wb_tcp_getStatus(port)&0x80)!=0) { // Error
+	/*	#ifdef DEBUG
+    errorcount++;
+		#endif*/
+  }
+}
+
+// Send a TCP packet and retrieve returned data
+// Returns returned data size or -1 if error
+// Data size must be <= WB_TCP_MAX_WRITE
+int wb_tcp_sendReceive(int port,byte & data[],byte & rxdata[]) {
+	if (ArrayLen(data)>WB_TCP_MAX_WRITE) {
+		wb_error("TCPWriteSize Exceeded");
+		return -1;
+	}
+
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE2,"TCP SendReceive         ");
+  #endif
+  while ((wb_tcp_getStatus(port)&0x1)==0) Wait(100); // Wait Port Ready
+  //~ wb_tcp_waitReady(port);  
+  byte length=ArrayLen(data);
+  wb_writeByte(port,0x4007,length); // Set TX Length
+  wb_writeBytesLong(port,0x4008,data); // Set TX Data
+  wb_writeMask(port,0x4000,4,0);  // Reset Request Done
+  wb_writeMask(port,0x4000,2,2);  // Send Request
+  while ((wb_tcp_getStatus(port)&0x4)==0) Wait(100); // Wait Request Done 
+  if ((wb_tcp_getStatus(port)&0x80)==0) { // No Error
+    int size=wb_readByte(port,0x4028); ///
+    if (size>0) {
+      wb_readBytes(port,0x4029,rxdata,size);
+    }
+    return size;
+  }
+  else {
+	/*	#ifdef DEBUG
+    errorcount++;
+		#endif*/
+    return -1;
+  }
+}
+
+
+
+/****************************************
+          HTTP Get Communication
+****************************************/
+
+#define WB_GET_MAX_URL_SIZE  		 64
+#define WB_GET_MAX_RETURN_SIZE   64
+
+// Get HTTP Get port status
+byte wb_get_getStatus(int port) {
+  byte status=wb_readByte(port,0x1000);
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE1,"    GET Status      ");
+  NumOut(0,LCD_LINE1,status);
+  #endif
+  return status;
+}
+
+// Set HTTP Get port destination (IP and destination port)
+void wb_get_setDestination(int port,byte ip1,byte ip2,byte ip3,byte ip4,int dstport) {
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE2,"GET SetDestination         ");
+  #endif
+  while ((wb_get_getStatus(port)&1)==0) Wait(100);  // Wait for port ready
+  byte data[6];
+  data[0]=ip1;
+  data[1]=ip2;
+  data[2]=ip3;
+  data[3]=ip4;
+  data[4]=(dstport>>8)&0xFF;
+  data[5]=(dstport)&0xFF;
+  wb_writeBytes(port,0x1002,data);
+}
+
+
+// Send an HTTP Get request and retrieve returned data
+// Data size must be <= WB_GET_MAX_URL_SIZE
+// Returns returned data size of -1 if error (HTTP Response should be checked in that case)
+int wb_get_sendReceive(int port,string data,byte & rxdata[]) {
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE2,"GET sendReceive         ");
+  #endif
+  int size=StrLen(data)+1;
+  if (size>WB_GET_MAX_URL_SIZE) {
+    wb_error("GET URL too long");
+    return -1;
+  }
+ 
+  while ((wb_get_getStatus(port)&1)==0) Wait(100);  // Wait for port ready
+  
+  wb_writeString(port,0x1008,data); // Write Data
+  wb_writeMask(port,0x1000,8,0); // Reset Send Done
+  wb_writeMask(port,0x1000,4,4); // Send Request
+
+  while ((wb_get_getStatus(port)&8)==0) Wait(100);  // Wait for request DONE
+
+	//~ wb_writeMask(port,0x1000,1,1); // Force set ready
+
+  if ((wb_get_getStatus(port)&0x80)!=0) { // Check error
+    //errorcount++;
+    return -1;
+  }
+  else {
+    byte rxsize=wb_readByte(port,0x1001); // Get RX data size
+    if (rxsize>0) {
+      if (rxsize>WB_I2C_MAX_READ) rxsize=WB_I2C_MAX_READ;
+      wb_readBytes(port,0x1048,rxdata,rxsize); // Read RX data
+    }
+    return rxsize;    
+  }
+  
+}
+
+
+
+
+/****************************************
+          HTTP Post Communication
+****************************************/
+
+#define WB_POST_MAX_URL_SIZE  	 64
+#define WB_POST_MAX_DATA_SIZE  	 32
+
+// Get HTTP Post port status
+byte wb_post_getStatus(int port) {
+  byte status=wb_readByte(port,0x2000);
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE1,"    POST Status      ");
+  NumOut(0,LCD_LINE1,status);
+  #endif
+  return status;
+}
+
+// Set HTTP Post port destination (IP and destination port)
+void wb_post_setDestination(int port,byte ip1,byte ip2,byte ip3,byte ip4,int dstport, bool useHostname) {
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE2,"POST setDestination         ");
+  #endif
+  while ((wb_post_getStatus(port)&1)==0) Wait(10);  // Wait for port ready
+  byte data[6];
+  data[0]=ip1;
+  data[1]=ip2;
+  data[2]=ip3;
+  data[3]=ip4;
+  data[4]=(dstport>>8)&0xFF;
+  data[5]=(dstport)&0xFF;
+  wb_writeBytes(port,0x2002,data);
+  wb_writeMask(port,0x2000,1,1);
+		
+	if(useHostname)
+	wb_writeMask(port, 0x0200, 0x04, 0x04);
+	else
+		wb_writeMask(port, 0x0200, 0x04, 0);//don't use hostname
+}
+
+
+// Set the HTTP Post URL
+// URL size must be <= WB_POST_MAX_URL_SIZE
+void wb_post_setURL(int port,string url) {
+  int size=StrLen(url)+1;
+  if (size>WB_POST_MAX_URL_SIZE) {
+    wb_error("POST URL too long");
+    return;
+  }
+  while ((wb_post_getStatus(port)&1)==0) Wait(10);  // Wait for port ready
+
+  wb_writeString(port,0x2008,url);
+}
+
+
+// Set the HTTP Post Data
+// Data size must be <= WB_POST_MAX_DATA_SIZE
+void wb_post_setData(int port,string data) {
+  int size=StrLen(data)+1;
+  if (size>WB_POST_MAX_DATA_SIZE) {
+    wb_error("POST DATA too long");
+    return;
+  }
+  while ((wb_post_getStatus(port)&1)==0) Wait(10);  // Wait for port ready
+
+  wb_writeString(port,0x2048,data);
+  byte s=size;
+  wb_writeByte(port,0x2001,s);
+}
+
+// Send an HTTP Post request and retrieve HTTP Response
+// URL size must be <= WB_POST_MAX_URL_SIZE
+// Data size must be <= WB_POST_MAX_DATA_SIZE
+// Returns: returned HTTP Response size, or -1 if error
+int wb_post_sendURLData(int port,string url,string data,byte & rxdata[]) {
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE2,"POST sendURLData         ");
+  #endif
+
+  while ((wb_post_getStatus(port)&1)==0) Wait(10);  // Wait for port ready
+
+  wb_post_setURL(port,url);
+  wb_post_setData(port,data);
+  wb_writeMask(port,0x2000,8,0); // Remove request done
+  wb_writeMask(port,0x2000,4,4); // Send Request
+
+  while ((wb_post_getStatus(port)&8)==0) Wait(10);  // Wait for request done
+
+  if ((wb_post_getStatus(port)&0x80)!=0) {
+   // errorcount++;
+    return -1;
+  }
+  else {
+    wb_readBytes(port,0x001F,rxdata,3);
+    return 3;
+  }
+}
+
+
+/****************************************
+        DataFlash Functionalities
+****************************************/
+#ifdef WIFIBLOCK_DATAFLASH
+
+#define WB_DATAFLASH_MAX_READ  	 32
+#define WB_DATAFLASH_MAX_WRITE 	 32
+
+// Get DataFlash status
+byte wb_dataflash_getStatus(int port) {
+  byte status=wb_readByte(port,0x5000);
+  #ifdef DEBUG
+  TextOut(0,LCD_LINE1,"    DataFlash Status      ");
+  NumOut(0,LCD_LINE1,status);
+  #endif
+  return status;
+}
+
+// Write a block in dataflash at a specified page address (pages are 32 bytes long)
+// Data size must be <= WB_DATAFLASH_MAX_WRITE
+void wb_dataflash_writeBlock(int port,unsigned int address,byte data[]) {
+	if (ArrayLen(data)>WB_DATAFLASH_MAX_WRITE) {
+    wb_error("DataFlashWrite too long");
+    return;
+  }
+  byte addr[2];
+  addr[0]=(address>>8)&0xFF;
+  addr[1]=(address)&0xFF;	
+  wb_writeBytes(port,0x5001,addr);
+  wb_writeBytesLong(port,0x5003,data);
+  wb_writeMask(port,0x5000,2,0); // Reset Write Done
+	wb_writeMask(port,0x5000,1,1); // Set Write
+  byte status;
+  do {
+		Wait(10);
+    status=wb_dataflash_getStatus(port);
+  }
+  while ((status&2)==0);
+  
+	
+	//~ wb_dataflash_getStatus(port);
+	//~ Wait(1000);
+	//~ wb_writeMask(port,0x5000,2,0); // Reset Write Done
+  //~ wb_writeMask(port,0x5000,8,0); // Reset Read Done
+	
+	
+}
+
+// Read a block from dataflash at a specified page address (pages are 32 bytes long)
+// Data size must be <= WB_DATAFLASH_MAX_READ
+void wb_dataflash_readBlock(int port,unsigned int address,byte & data[],byte size) {
+	if (size>WB_DATAFLASH_MAX_READ) {
+    wb_error("DataFlashRead too long");
+    return;
+  }
+  byte addr[2];
+  addr[0]=(address>>8)&0xFF;
+  addr[1]=(address)&0xFF;	
+  wb_writeBytes(port,0x5001,addr);
+  wb_writeMask(port,0x5000,8,0); // Reset Read Done
+	wb_writeMask(port,0x5000,4,4); // Set Read
+  byte status;
+  do {
+		Wait(10);
+    status=wb_dataflash_getStatus(port);
+  }
+  while ((status&8)==0);
+  wb_readBytes(port,0x5003,data,size);
+}
+
+#endif
+
+
+/****************************************
+        Timer Functionalities
+****************************************/
+
+#define DATE_RST_REGISTER           0x0010
+#define DATE_REGISTER                  0x0011
+#define DATE_OFF_REGISTER           0x0015
+
+
+void setTimer(int port, byte offset[]){
+	if(ArrayLen(offset)==0){
+		byte zeroOff[] = {0,0,0,0};
+		wb_writeBytes(port,DATE_OFF_REGISTER,zeroOff);
+	}
+	else{
+		wb_writeBytes(port,DATE_OFF_REGISTER,offset);
+	}
+	wb_writeByte(port,DATE_RST_REGISTER,1);
+}
+
+unsigned long getTimer(int port){
+	byte timeB[];
+	wb_readBytes( port,DATE_REGISTER,timeB,4) ;
+	unsigned long time = (timeB[0]<<24)|(timeB[1]<<16)|(timeB[2]<<8)|timeB[3];
+	return time;
+}
+
+
+#endif
+
+
