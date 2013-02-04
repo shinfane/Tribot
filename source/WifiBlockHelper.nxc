@@ -1,0 +1,30 @@
+/*********************************************
+      NXC WifiBlock Helper Libraries 
+      
+      Author: Philippe Capdepuy
+      
+      (C) 2012 Generation Robots
+**********************************************/
+
+#ifndef INCLUDE_WIFIBLOCK_HELPER
+#define INCLUDE_WIFIBLOCK_HELPER
+
+#include "WifiBlock.nxc"
+
+bool quickConnect(int port,string ssid,int security,string pass,byte ip[],byte mask[],byte gw[]) {
+  wb_initPort(port);
+  if (wb_isConnected(port)) return true;
+  wb_connect(port,ssid,security,pass,ip[0],ip[1],ip[2],ip[3],mask[0],mask[1],mask[2],mask[3],gw[0],gw[1],gw[2],gw[3],false);
+  return wb_waitConnect(port);
+}
+
+string quickGET(int port,byte ip[],string request) {
+  wb_get_setDestination(port,ip[0],ip[1],ip[2],ip[3],80);
+  byte data[32];
+  int res=wb_get_sendReceive(port,request,data);
+  if (res<0) return "";    
+  return ByteArrayToStr(data);
+}
+
+
+#endif
