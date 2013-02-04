@@ -1,0 +1,39 @@
+/*********************************************
+      NXC WifiBlock Snippets Examples
+      
+      Author: Philippe Capdepuy
+      
+      (C) 2012 Generation Robots
+**********************************************/
+
+#include "WifiBlockHelper.nxc"
+
+
+#define WB_PORT IN_2
+
+byte serviceip[]={192,168,2,23};
+
+void getName(string out) {
+  string myname=quickGET(WB_PORT,serviceip,"/~micha/webservice/echo.php?name="+out);
+  if (myname!="") {
+    TextOut(0,LCD_LINE1,myname+"      ");
+  }
+  else TextOut(0,LCD_LINE1,"GET ERROR");          
+}
+
+task main()
+{
+  byte ip[]={192,168,1,234};
+  byte mask[]={255,255,255,0};
+  byte gw[]={192,168,1,1};
+  if (quickConnect(WB_PORT,"wifissid",WB_SECURITY_WPA2,"passphrase",ip,mask,gw)) {
+    while (true) {
+      getName("Micha");
+	  Wait(1000);
+    }
+  }
+  else {
+    TextOut(0,LCD_LINE1,"CONNECT ERROR");
+  }
+  Wait(60000);
+}
