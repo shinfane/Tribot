@@ -1,39 +1,88 @@
-/*********************************************
-      NXC WifiBlock Snippets Examples
-      
-      Author: Philippe Capdepuy
-      
-      (C) 2012 Generation Robots
-**********************************************/
 
 #include "WifiBlockHelper.nxc"
 
 
 #define WB_PORT IN_2
 
-byte serviceip[]={192,168,2,23};
+string oauth;
+byte serviceip[]={192,168,1,130};
 
-void getName(string out) {
-  string myname=quickGET(WB_PORT,serviceip,"/~micha/webservice/echo.php?name="+out);
-  if (myname!="") {
-    TextOut(0,LCD_LINE1,myname+"      ");
-  }
-  else TextOut(0,LCD_LINE1,"GET ERROR");          
+/*
+string getOauth() {
+    byte handle;
+	string msg;
+    handle = fopen("oauth.ini", "r");
+    NumOut(0, LCD_LINE2, handle);
+      if (handle != NULL)
+      {
+        
+        fgets(msg, 30, handle);
+
+      } else {
+		  msg = "ERROR";
+		  
+	  }
+	  return msg;	  
 }
+*/
+
+
+int getCommand(){
+	string response=quickGET(WB_PORT,serviceip,"/~micha/ws/m.php?role=cloudrx");
+	int i=StrToNum(response);
+	NumOut(0,LCD_LINE1,i);
+	return i;
+}
+
+string ironCacheSet(string cache, string key, string value){
+	return quickGET(WB_PORT,serviceip,"/~micha/ws/m.php?role=c_w&cn="+cache+"&key="+key+"&value="+value);
+}
+
+string ironCacheGet(string cache, string key) {
+	return quickGET(WB_PORT,serviceip,"/~micha/ws/m.php?role=c_r&cn="+cache+"&key="+key);
+}
+
 
 task main()
 {
   byte ip[]={192,168,1,234};
   byte mask[]={255,255,255,0};
   byte gw[]={192,168,1,1};
+  int rcmd=0;
   if (quickConnect(WB_PORT,"wifissid",WB_SECURITY_WPA2,"passphrase",ip,mask,gw)) {
+	
     while (true) {
-      getName("Micha");
-	  Wait(1000);
+     
+	  rcmd=getCommand();
+	  switch(rcmd) {
+          case 1:
+                  OnFwdReg(OUT_AC,50,OUT_REGMODE_SYNC);
+                  break;
+          case 2:
+		  		  OnRevReg(OUT_AC,50,OUT_REGMODE_SYNC);
+				  break;
+          case 3:
+                  RotateMotorEx(OUT_AC,50,30,100,true,false);
+                  break;
+		  case 4:
+		  		  RotateMotorEx(OUT_AC, 50,30,-100, true, false);
+				  break;
+		  case 6: 
+				  byte voltage=wb_getBattery(WB_PORT);
+				  NumOut(0,LCD_LINE2,voltage);
+				  quickGET(WB_PORT,serviceip,"/~micha/ws/m.php?role=display_s&msg="+NumToStr(voltage));
+				  break;
+          default:
+		  		  Float(OUT_AC);
+                  break;
+	  
+	  	
+	  }
+	  Wait(100);
     }
   }
   else {
     TextOut(0,LCD_LINE1,"CONNECT ERROR");
   }
-  Wait(60000);
+  Wait(10000);
 }
